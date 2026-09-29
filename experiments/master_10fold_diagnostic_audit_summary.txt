@@ -1,0 +1,105 @@
+==========================================================================================
+MASTER 10-FOLD DIAGNOSTIC PERFORMANCE & CONVERGENCE AUDIT REPORT
+==========================================================================================
+
+------------------------------------------------------------------------------------------
+OVERALL 10-FOLD BENCHMARK RESULTS: Model 1: Calibrated Model (Global SE-ResNet1D)
+------------------------------------------------------------------------------------------
+  Macro ROC-AUC        : 0.9279 ± 0.0071  [Min: 0.9097, Max: 0.9346]
+  Macro F1 (Opt Thresh): 0.7420 ± 0.0093  [Min: 0.7214, Max: 0.7555]
+  Macro F1 (Fixed 0.5) : 0.7268 ± 0.0118  [Min: 0.6984, Max: 0.7443]
+  Micro F1 (Opt Thresh): 0.7732 ± 0.0089  [Min: 0.7559, Max: 0.7863]
+  Binary Test Accuracy : 85.85% ± 0.80%  [Min: 83.98%, Max: 87.17%]
+  Binary Test Loss     : 0.5540 ± 0.0273  [Min: 0.5343, Max: 0.6077]
+
+  [Training Convergence & Overfitting Audit]
+  Average Early Stop Epoch : 27.8 Epochs
+  Average Training Loss    : 0.5154
+  Average Validation Loss  : 0.5508
+  Average Loss Gap (Val-Tr): 0.0354 (Low gap indicates strong generalizability)
+
+  [Per-Class 10-Fold ROC-AUC & F1-Score (Mean ± Std)]
+  Class  | 10-Fold ROC-AUC [Min, Max]           | 10-Fold F1-Score [Min, Max]
+  -------|--------------------------------------|-------------------------------------
+  NORM   | 0.9530 ± 0.0076 [0.9381, 0.9612] | 0.0000 ± 0.0000 [0.0000, 0.0000]
+  MI     | 0.9205 ± 0.0139 [0.8918, 0.9387] | 0.0000 ± 0.0000 [0.0000, 0.0000]
+  STTC   | 0.9320 ± 0.0058 [0.9241, 0.9404] | 0.0000 ± 0.0000 [0.0000, 0.0000]
+  CD     | 0.9220 ± 0.0129 [0.8933, 0.9397] | 0.0000 ± 0.0000 [0.0000, 0.0000]
+  HYP    | 0.9121 ± 0.0119 [0.8917, 0.9241] | 0.0000 ± 0.0000 [0.0000, 0.0000]
+
+  [BEST FOLD SELECTION & CLINICAL DIAGNOSTIC METRICS (Fold 8, Test Fold 7)]
+  Class  | TP   | FP   | TN   | FN   | Sensitivity (Recall) | Specificity        | PPV (Precision)    | NPV
+  -------|------|------|------|------|----------------------|--------------------|--------------------|--------------------
+  NORM   | 881  | 164  | 1042 | 89   | 90.82%               | 86.40%             | 84.31%               | 92.13%
+  MI     | 436  | 187  | 1439 | 114  | 79.27%               | 88.50%             | 69.98%               | 92.66%
+  STTC   | 413  | 192  | 1464 | 107  | 79.42%               | 88.41%             | 68.26%               | 93.19%
+  CD     | 329  | 85   | 1613 | 149  | 68.83%               | 94.99%             | 79.47%               | 91.54%
+  HYP    | 160  | 80   | 1832 | 104  | 60.61%               | 95.82%             | 66.67%               | 94.63%
+
+------------------------------------------------------------------------------------------
+OVERALL 10-FOLD BENCHMARK RESULTS: Model 2: Anatomically Guided Model (4-Branch SE-ResNet1D)
+------------------------------------------------------------------------------------------
+  Macro ROC-AUC        : 0.9407 ± 0.0056  [Min: 0.9282, Max: 0.9456]
+  Macro F1 (Opt Thresh): 0.7649 ± 0.0079  [Min: 0.7481, Max: 0.7792]
+  Macro F1 (Fixed 0.5) : 0.7511 ± 0.0098  [Min: 0.7256, Max: 0.7607]
+  Micro F1 (Opt Thresh): 0.7934 ± 0.0070  [Min: 0.7789, Max: 0.8034]
+  Binary Test Accuracy : 87.40% ± 0.70%  [Min: 85.42%, Max: 88.08%]
+  Binary Test Loss     : 0.5055 ± 0.0262  [Min: 0.4817, Max: 0.5622]
+
+  [Training Convergence & Overfitting Audit]
+  Average Early Stop Epoch : 37.4 Epochs
+  Average Training Loss    : 0.4518
+  Average Validation Loss  : 0.5050
+  Average Loss Gap (Val-Tr): 0.0532 (Low gap indicates strong generalizability)
+
+  [Per-Class 10-Fold ROC-AUC & F1-Score (Mean ± Std)]
+  Class  | 10-Fold ROC-AUC [Min, Max]           | 10-Fold F1-Score [Min, Max]
+  -------|--------------------------------------|-------------------------------------
+  NORM   | 0.9599 ± 0.0064 [0.9489, 0.9677] | 0.8738 ± 0.0124 [0.8532, 0.8923]
+  MI     | 0.9421 ± 0.0065 [0.9278, 0.9521] | 0.7776 ± 0.0178 [0.7514, 0.8045]
+  STTC   | 0.9368 ± 0.0053 [0.9279, 0.9458] | 0.7585 ± 0.0170 [0.7329, 0.7857]
+  CD     | 0.9395 ± 0.0099 [0.9194, 0.9514] | 0.7752 ± 0.0139 [0.7595, 0.8020]
+  HYP    | 0.9252 ± 0.0114 [0.9049, 0.9417] | 0.6391 ± 0.0208 [0.6068, 0.6690]
+
+  [BEST FOLD SELECTION & CLINICAL DIAGNOSTIC METRICS (Fold 9, Test Fold 8)]
+  Class  | TP   | FP   | TN   | FN   | Sensitivity (Recall) | Specificity        | PPV (Precision)    | NPV
+  -------|------|------|------|------|----------------------|--------------------|--------------------|--------------------
+  NORM   | 821  | 127  | 1114 | 111  | 88.09%               | 89.77%             | 86.60%               | 90.94%
+  MI     | 469  | 159  | 1476 | 69   | 87.17%               | 90.28%             | 74.68%               | 95.53%
+  STTC   | 406  | 133  | 1526 | 108  | 78.99%               | 91.98%             | 75.32%               | 93.39%
+  CD     | 401  | 135  | 1546 | 91   | 81.50%               | 91.97%             | 74.81%               | 94.44%
+  HYP    | 183  | 98   | 1807 | 85   | 68.28%               | 94.86%             | 65.12%               | 95.51%
+
+------------------------------------------------------------------------------------------
+OVERALL 10-FOLD BENCHMARK RESULTS: Model 3: Anatomical Territory-Dropout Model (4-Branch + Territory Dropout p=0.15)
+------------------------------------------------------------------------------------------
+  Macro ROC-AUC        : 0.9407 ± 0.0051  [Min: 0.9306, Max: 0.9470]
+  Macro F1 (Opt Thresh): 0.7640 ± 0.0062  [Min: 0.7549, Max: 0.7748]
+  Macro F1 (Fixed 0.5) : 0.7535 ± 0.0081  [Min: 0.7376, Max: 0.7646]
+  Micro F1 (Opt Thresh): 0.7937 ± 0.0063  [Min: 0.7836, Max: 0.8026]
+  Binary Test Accuracy : 87.65% ± 0.57%  [Min: 86.68%, Max: 88.27%]
+  Binary Test Loss     : 0.5083 ± 0.0215  [Min: 0.4795, Max: 0.5499]
+
+  [Training Convergence & Overfitting Audit]
+  Average Early Stop Epoch : 37.2 Epochs
+  Average Training Loss    : 0.4632
+  Average Validation Loss  : 0.5052
+  Average Loss Gap (Val-Tr): 0.0420 (Low gap indicates strong generalizability)
+
+  [Per-Class 10-Fold ROC-AUC & F1-Score (Mean ± Std)]
+  Class  | 10-Fold ROC-AUC [Min, Max]           | 10-Fold F1-Score [Min, Max]
+  -------|--------------------------------------|-------------------------------------
+  NORM   | 0.9601 ± 0.0063 [0.9491, 0.9668] | 0.8753 ± 0.0109 [0.8566, 0.8917]
+  MI     | 0.9420 ± 0.0072 [0.9331, 0.9554] | 0.7720 ± 0.0178 [0.7458, 0.7990]
+  STTC   | 0.9363 ± 0.0058 [0.9272, 0.9462] | 0.7559 ± 0.0120 [0.7392, 0.7768]
+  CD     | 0.9391 ± 0.0086 [0.9235, 0.9516] | 0.7807 ± 0.0124 [0.7620, 0.8008]
+  HYP    | 0.9259 ± 0.0094 [0.9119, 0.9383] | 0.6364 ± 0.0203 [0.5938, 0.6739]
+
+  [BEST FOLD SELECTION & CLINICAL DIAGNOSTIC METRICS (Fold 9, Test Fold 8)]
+  Class  | TP   | FP   | TN   | FN   | Sensitivity (Recall) | Specificity        | PPV (Precision)    | NPV
+  -------|------|------|------|------|----------------------|--------------------|--------------------|--------------------
+  NORM   | 853  | 159  | 1082 | 79   | 91.52%               | 87.19%             | 84.29%               | 93.20%
+  MI     | 457  | 149  | 1486 | 81   | 84.94%               | 90.89%             | 75.41%               | 94.83%
+  STTC   | 446  | 224  | 1435 | 68   | 86.77%               | 86.50%             | 66.57%               | 95.48%
+  CD     | 394  | 103  | 1578 | 98   | 80.08%               | 93.87%             | 79.28%               | 94.15%
+  HYP    | 157  | 71   | 1834 | 111  | 58.58%               | 96.27%             | 68.86%               | 94.29%

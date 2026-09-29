@@ -1,0 +1,105 @@
+==========================================================================================
+PER-CLASS DIAGNOSTIC 2x2 CONFUSION MATRICES FOR BEST FOLD OF EACH MODEL
+==========================================================================================
+
+------------------------------------------------------------------------------------------
+Model 1: Calibrated Model (Global SE-ResNet1D) (Best Fold 8, Evaluated on Test Fold 7)
+------------------------------------------------------------------------------------------
+
+  --- Superclass: NORM ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1042                 164                  (Specificity: 86.40%)
+  Actual Positive    89                   881                  (Sensitivity: 90.82%)
+  Precision (PPV): 84.31% | NPV: 92.13% | Class F1: 0.8744
+
+  --- Superclass: MI ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1439                 187                  (Specificity: 88.50%)
+  Actual Positive    114                  436                  (Sensitivity: 79.27%)
+  Precision (PPV): 69.98% | NPV: 92.66% | Class F1: 0.7434
+
+  --- Superclass: STTC ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1464                 192                  (Specificity: 88.41%)
+  Actual Positive    107                  413                  (Sensitivity: 79.42%)
+  Precision (PPV): 68.26% | NPV: 93.19% | Class F1: 0.7342
+
+  --- Superclass: CD ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1613                 85                   (Specificity: 94.99%)
+  Actual Positive    149                  329                  (Sensitivity: 68.83%)
+  Precision (PPV): 79.47% | NPV: 91.54% | Class F1: 0.7377
+
+  --- Superclass: HYP ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1832                 80                   (Specificity: 95.82%)
+  Actual Positive    104                  160                  (Sensitivity: 60.61%)
+  Precision (PPV): 66.67% | NPV: 94.63% | Class F1: 0.6349
+
+------------------------------------------------------------------------------------------
+Model 2: Anatomically Guided Model (4-Branch SE-ResNet1D) (Best Fold 9, Evaluated on Test Fold 8)
+------------------------------------------------------------------------------------------
+
+  --- Superclass: NORM ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1114                 127                  (Specificity: 89.77%)
+  Actual Positive    111                  821                  (Sensitivity: 88.09%)
+  Precision (PPV): 86.60% | NPV: 90.94% | Class F1: 0.8734
+
+  --- Superclass: MI ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1476                 159                  (Specificity: 90.28%)
+  Actual Positive    69                   469                  (Sensitivity: 87.17%)
+  Precision (PPV): 74.68% | NPV: 95.53% | Class F1: 0.8045
+
+  --- Superclass: STTC ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1526                 133                  (Specificity: 91.98%)
+  Actual Positive    108                  406                  (Sensitivity: 78.99%)
+  Precision (PPV): 75.32% | NPV: 93.39% | Class F1: 0.7711
+
+  --- Superclass: CD ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1546                 135                  (Specificity: 91.97%)
+  Actual Positive    91                   401                  (Sensitivity: 81.50%)
+  Precision (PPV): 74.81% | NPV: 94.44% | Class F1: 0.7802
+
+  --- Superclass: HYP ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1807                 98                   (Specificity: 94.86%)
+  Actual Positive    85                   183                  (Sensitivity: 68.28%)
+  Precision (PPV): 65.12% | NPV: 95.51% | Class F1: 0.6667
+
+------------------------------------------------------------------------------------------
+Model 3: Anatomical Territory-Dropout Model (4-Branch + Territory Dropout p=0.15) (Best Fold 9, Evaluated on Test Fold 8)
+------------------------------------------------------------------------------------------
+
+  --- Superclass: NORM ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1082                 159                  (Specificity: 87.19%)
+  Actual Positive    79                   853                  (Sensitivity: 91.52%)
+  Precision (PPV): 84.29% | NPV: 93.20% | Class F1: 0.8776
+
+  --- Superclass: MI ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1486                 149                  (Specificity: 90.89%)
+  Actual Positive    81                   457                  (Sensitivity: 84.94%)
+  Precision (PPV): 75.41% | NPV: 94.83% | Class F1: 0.7990
+
+  --- Superclass: STTC ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1435                 224                  (Specificity: 86.50%)
+  Actual Positive    68                   446                  (Sensitivity: 86.77%)
+  Precision (PPV): 66.57% | NPV: 95.48% | Class F1: 0.7534
+
+  --- Superclass: CD ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1578                 103                  (Specificity: 93.87%)
+  Actual Positive    98                   394                  (Sensitivity: 80.08%)
+  Precision (PPV): 79.28% | NPV: 94.15% | Class F1: 0.7968
+
+  --- Superclass: HYP ---
+                     Predicted Negative    Predicted Positive
+  Actual Negative    1834                 71                   (Specificity: 96.27%)
+  Actual Positive    111                  157                  (Sensitivity: 58.58%)
+  Precision (PPV): 68.86% | NPV: 94.29% | Class F1: 0.6331

@@ -1,0 +1,218 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{strodthoff2020deep}
+N.~Strodthoff, P.~Wagner, T.~Schaeffter, W.~Samek, Deep learning for ecg
+  analysis: Benchmarks and insights from ptb-xl, IEEE Journal of Biomedical and
+  Health Informatics 25~(5) (2020) 1519--1528.
+\newblock \href {https://doi.org/10.1109/JBHI.2020.3022989}
+  {\path{doi:10.1109/JBHI.2020.3022989}}.
+
+\bibitem{wagner2020ptb}
+P.~Wagner, N.~Strodthoff, R.-D. Bousseljot, D.~Kreiseler, F.~I. Lunze,
+  W.~Samek, T.~Schaeffter, Ptb-xl, a large publicly available
+  electrocardiography dataset, Scientific Data 7~(1) (2020) 154.
+\newblock \href {https://doi.org/10.1038/s41597-020-0495-6}
+  {\path{doi:10.1038/s41597-020-0495-6}}.
+
+\bibitem{ribeiro2020automatic}
+A.~H. Ribeiro, M.~H. Ribeiro, G.~M. Paix{\~a}o, D.~M. Oliveira, P.~R. Gomes,
+  J.~A. Canazart, M.~P. Ferreira, C.~R. Andersson, P.~W. Macfarlane,
+  W.~Meira~Jr, et~al., Automatic diagnosis of the 12-lead ecg using a deep
+  neural network, Nature Communications 11~(1) (2020) 1760.
+\newblock \href {https://doi.org/10.1038/s41467-020-15432-4}
+  {\path{doi:10.1038/s41467-020-15432-4}}.
+
+\bibitem{hannun2019cardiologist}
+A.~Y. Hannun, P.~Rajpurkar, M.~Haghpanahi, G.~H. Tison, C.~Bourn, M.~P.
+  Turakhia, A.~Y. Ng, Cardiologist-level arrhythmia detection and
+  classification in ambulatory electrocardiograms using a deep neural network,
+  Nature Medicine 25~(1) (2019) 65--69.
+\newblock \href {https://doi.org/10.1038/s41591-018-0268-3}
+  {\path{doi:10.1038/s41591-018-0268-3}}.
+
+\bibitem{sundararajan2017axiomatic}
+M.~Sundararajan, A.~Taly, Q.~Yan,
+  \href{http://proceedings.mlr.press/v70/sundararajan17a.html}{Axiomatic
+  attribution for deep networks}, in: International Conference on Machine
+  Learning, 2017, pp. 3319--3328.
+\newline\urlprefix\url{http://proceedings.mlr.press/v70/sundararajan17a.html}
+
+\bibitem{lundberg2017unified}
+S.~M. Lundberg, S.-I. Lee, A unified approach to interpreting model
+  predictions, in: Advances in Neural Information Processing Systems, Vol.~30,
+  2017.
+\newblock \href {https://doi.org/10.48550/arXiv.1705.07874}
+  {\path{doi:10.48550/arXiv.1705.07874}}.
+
+\bibitem{van2019explaining}
+B.~H.~M. van~der Velden, H.~J. Kuijf, K.~G.~A. Gilhuijs, M.~A. Viergever,
+  Explaining machine learning models for clinical decision support: A review,
+  Medical Image Analysis 77 (2022) 102379.
+\newblock \href {https://doi.org/10.1016/j.media.2022.102379}
+  {\path{doi:10.1016/j.media.2022.102379}}.
+
+\bibitem{ismail2020benchmarking}
+A.~A. Ismail, M.~Gunady, H.~Corrada~Bravo, S.~Feizi, Benchmarking deep learning
+  interpretability in time series predictions, in: Advances in Neural
+  Information Processing Systems, Vol.~33, 2020, pp. 6441--6452.
+\newblock \href {https://doi.org/10.48550/arXiv.2010.13924}
+  {\path{doi:10.48550/arXiv.2010.13924}}.
+
+\bibitem{tonekaboni2020went}
+S.~Tonekaboni, S.~Joshi, M.~D. McCradden, A.~Goldenberg, What went wrong and
+  when? instance-wise feature importance for time-series black-box models, in:
+  Advances in Neural Information Processing Systems, Vol.~33, 2020, pp.
+  7982--7992.
+\newblock \href {https://doi.org/10.48550/arXiv.2003.02821}
+  {\path{doi:10.48550/arXiv.2003.02821}}.
+
+\bibitem{jain2019attention}
+S.~Jain, B.~C. Wallace, Attention is not explanation, arXiv preprint
+  arXiv:1902.10186 (2019).
+\newblock \href {https://doi.org/10.48550/arXiv.1902.10186}
+  {\path{doi:10.48550/arXiv.1902.10186}}.
+
+\bibitem{wachter2017counterfactual}
+S.~Wachter, B.~Mittelstadt, C.~Russell, Counterfactual explanations without
+  opening the black box: Automated decisions and the gdpr, Harvard Journal of
+  Law \& Technology 31~(2) (2017) 841.
+\newblock \href {https://doi.org/10.2139/ssrn.3063289}
+  {\path{doi:10.2139/ssrn.3063289}}.
+
+\bibitem{pearl2009causality}
+J.~Pearl, Causality: Models, reasoning, and inference, Cambridge University
+  Press (2009).
+\newblock \href {https://doi.org/10.1017/CBO9780511803161}
+  {\path{doi:10.1017/CBO9780511803161}}.
+
+\bibitem{mothilal2020explaining}
+R.~K. Mothilal, A.~Sharma, C.~Chen, Explaining machine learning classifiers
+  through diverse counterfactual explanations, in: Proceedings of the 2020
+  Conference on Fairness, Accountability, and Transparency, 2020, pp. 607--617.
+\newblock \href {https://doi.org/10.1145/3351095.3372850}
+  {\path{doi:10.1145/3351095.3372850}}.
+
+\bibitem{korkmaz2021deep}
+O.~Korkmaz, Deep learning-based robust ecg generation and classification,
+  Computers in Biology and Medicine 135 (2021) 104646.
+\newblock \href {https://doi.org/10.1016/j.compbiomed.2021.104646}
+  {\path{doi:10.1016/j.compbiomed.2021.104646}}.
+
+\bibitem{dempsey2022generative}
+P.~Dempsey, A.~Alghamdi, H.~Li, et~al., Generative diffusion models for
+  synthetic 12-lead ecg generation, arXiv preprint arXiv:2311.11582 (2023).
+\newblock \href {https://doi.org/10.48550/arXiv.2311.11582}
+  {\path{doi:10.48550/arXiv.2311.11582}}.
+
+\bibitem{ho2020denoising}
+J.~Ho, A.~Jain, P.~Abbeel, Denoising diffusion probabilistic models, in:
+  Advances in Neural Information Processing Systems, Vol.~33, 2020, pp.
+  6840--6851.
+\newblock \href {https://doi.org/10.48550/arXiv.2006.11239}
+  {\path{doi:10.48550/arXiv.2006.11239}}.
+
+\bibitem{dhariwal2021diffusion}
+P.~Dhariwal, A.~Nichol, Diffusion models beat gans on image synthesis, in:
+  Advances in Neural Information Processing Systems, Vol.~34, 2021, pp.
+  8780--8794.
+\newblock \href {https://doi.org/10.48550/arXiv.2105.05233}
+  {\path{doi:10.48550/arXiv.2105.05233}}.
+
+\bibitem{liu2018open}
+F.~Liu, C.~Liu, L.~Zhao, X.~Zhang, X.~Wu, X.~Xu, Y.~Ding, S.~Yin, Z.~Chen,
+  J.~Li, et~al., An open access database for evaluating the algorithms of
+  electrocardiogram rhythm and morphology abnormality detection, Journal of
+  Medical Imaging and Health Informatics 8~(7) (2018) 1368--1373.
+\newblock \href {https://doi.org/10.1166/jmihi.2018.2442}
+  {\path{doi:10.1166/jmihi.2018.2442}}.
+
+\bibitem{fawaz2019deep}
+H.~I. Fawaz, G.~Forestier, J.~Weber, L.~Idoumghar, P.-A. Muller, Deep learning
+  for time series classification: a review, Data Mining and Knowledge Discovery
+  33~(4) (2019) 917--963.
+\newblock \href {https://doi.org/10.1007/s10618-019-00619-1}
+  {\path{doi:10.1007/s10618-019-00619-1}}.
+
+\bibitem{siontis2021artificial}
+K.~C. Siontis, P.~A. Noseworthy, Z.~I. Attia, P.~A. Friedman, Artificial
+  intelligence-enhanced electrocardiography in cardiovascular disease
+  management, Nature Reviews Cardiology 18~(7) (2021) 465--478.
+\newblock \href {https://doi.org/10.1038/s41569-020-00503-2}
+  {\path{doi:10.1038/s41569-020-00503-2}}.
+
+\bibitem{smigiel2021ecg}
+S.~Smigiel, K.~Pa{\l}ka, et~al., Ecg signal classification using deep learning
+  techniques based on the ptb-xl dataset, Entropy 23~(9) (2021) 1121.
+\newblock \href {https://doi.org/10.3390/e23091121}
+  {\path{doi:10.3390/e23091121}}.
+
+\bibitem{mehari2022self}
+T.~Mehari, N.~Strodthoff, Self-supervised representation learning from 12-lead
+  ecg data, Computers in Biology and Medicine 141 (2022) 105114.
+\newblock \href {https://doi.org/10.1016/j.compbiomed.2021.105114}
+  {\path{doi:10.1016/j.compbiomed.2021.105114}}.
+
+\bibitem{che2021constrained}
+C.~Che, P.~Zhang, M.~Zhu, Y.~Qu, B.~Jin, Constrained transformer network for
+  ecg signal processing and arrhythmia classification, BMC Medical Informatics
+  and Decision Making 21~(1) (2021) 1--15.
+\newblock \href {https://doi.org/10.1186/s12911-021-01543-5}
+  {\path{doi:10.1186/s12911-021-01543-5}}.
+
+\bibitem{hazra2020synsiggan}
+D.~Hazra, Y.-C. Byun, Synsiggan: Generative adversarial networks for synthetic
+  biomedical signal generation, Biology 9~(12) (2020) 441.
+\newblock \href {https://doi.org/10.3390/biology9120441}
+  {\path{doi:10.3390/biology9120441}}.
+
+\bibitem{golany2020pgans}
+T.~Golany, K.~Radinsky, Pgans: Personalized generative adversarial networks for
+  ecg synthesis to improve patient-specific deep ecg classification,
+  Proceedings of the AAAI Conference on Artificial Intelligence 33~(01) (2019)
+  557--564.
+\newblock \href {https://doi.org/10.1609/aaai.v33i01.3301557}
+  {\path{doi:10.1609/aaai.v33i01.3301557}}.
+
+\bibitem{song2020denoising}
+Y.~Song, J.~Sohl-Dickstein, D.~P. Kingma, A.~Kumar, S.~Ermon, B.~Poole,
+  Score-based generative modeling through stochastic differential equations,
+  arXiv preprint arXiv:2011.13456 (2020).
+\newblock \href {https://doi.org/10.48550/arXiv.2011.13456}
+  {\path{doi:10.48550/arXiv.2011.13456}}.
+
+\bibitem{kazerouni2023diffusion}
+A.~Kazerouni, E.~K. Aghdam, M.~Heidari, R.~Azad, M.~Fayyaz, I.~Hacihaliloglu,
+  D.~Merhof, Diffusion models in medical imaging: A comprehensive survey,
+  Medical Image Analysis 88 (2023) 102846.
+\newblock \href {https://doi.org/10.1016/j.media.2023.102846}
+  {\path{doi:10.1016/j.media.2023.102846}}.
+
+\bibitem{neifar2024diffecg}
+N.~Neifar, et~al., Diffecg: A versatile probabilistic diffusion model for ecg
+  signals synthesis, in: 2024 IEEE/ACIS 22nd International Conference on
+  Software Engineering Research, Management and Applications (SERA), IEEE,
+  2024, pp. 182--188.
+\newblock \href {https://doi.org/10.48550/arXiv.2306.01875}
+  {\path{doi:10.48550/arXiv.2306.01875}}.
+
+\bibitem{goyal2019counterfactual}
+Y.~Goyal, Z.~Wu, J.~Ernst, D.~Batra, D.~Parikh, S.~Lee, Counterfactual visual
+  explanations, in: International Conference on Machine Learning, PMLR, 2019,
+  pp. 2376--2384.
+\newblock \href {https://doi.org/10.48550/arXiv.1904.07451}
+  {\path{doi:10.48550/arXiv.1904.07451}}.
+
+\bibitem{mertes2022gan}
+S.~Mertes, T.~Huber, K.~Weitz, A.~Heimerl, E.~Andr{\'e},
+  Ganterfactual-counterfactual explanations for medical non-experts using
+  generative adversarial learning, Frontiers in Artificial Intelligence 5
+  (2022) 825565.
+\newblock \href {https://doi.org/10.3389/frai.2022.825565}
+  {\path{doi:10.3389/frai.2022.825565}}.
+
+\end{thebibliography}

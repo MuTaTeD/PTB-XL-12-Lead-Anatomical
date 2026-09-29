@@ -1,0 +1,147 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{strodthoff2020deep}
+N.~Strodthoff, P.~Wagner, T.~Schaeffter, W.~Samek, Deep learning for ecg
+  analysis: Benchmarks and insights from ptb-xl, IEEE Journal of Biomedical and
+  Health Informatics 25~(5) (2020) 1519--1528.
+\newblock \href {https://doi.org/10.1109/JBHI.2020.3022989}
+  {\path{doi:10.1109/JBHI.2020.3022989}}.
+
+\bibitem{wagner2020ptb}
+P.~Wagner, N.~Strodthoff, R.-D. Bousseljot, D.~Kreiseler, F.~I. Lunze,
+  W.~Samek, T.~Schaeffter, Ptb-xl, a large publicly available
+  electrocardiography dataset, Scientific Data 7~(1) (2020) 154.
+\newblock \href {https://doi.org/10.1038/s41597-020-0495-6}
+  {\path{doi:10.1038/s41597-020-0495-6}}.
+
+\bibitem{ribeiro2020automatic}
+A.~H. Ribeiro, M.~H. Ribeiro, G.~M. Paix{\~a}o, D.~M. Oliveira, P.~R. Gomes,
+  J.~A. Canazart, M.~P. Ferreira, C.~R. Andersson, P.~W. Macfarlane,
+  W.~Meira~Jr, et~al., Automatic diagnosis of the 12-lead ecg using a deep
+  neural network, Nature Communications 11~(1) (2020) 1760.
+\newblock \href {https://doi.org/10.1038/s41467-020-15432-4}
+  {\path{doi:10.1038/s41467-020-15432-4}}.
+
+\bibitem{hannun2019cardiologist}
+A.~Y. Hannun, P.~Rajpurkar, M.~Haghpanahi, G.~H. Tison, C.~Bourn, M.~P.
+  Turakhia, A.~Y. Ng, Cardiologist-level arrhythmia detection and
+  classification in ambulatory electrocardiograms using a deep neural network,
+  Nature Medicine 25~(1) (2019) 65--69.
+\newblock \href {https://doi.org/10.1038/s41591-018-0268-3}
+  {\path{doi:10.1038/s41591-018-0268-3}}.
+
+\bibitem{sundararajan2017axiomatic}
+M.~Sundararajan, A.~Taly, Q.~Yan,
+  \href{http://proceedings.mlr.press/v70/sundararajan17a.html}{Axiomatic
+  attribution for deep networks}, in: International Conference on Machine
+  Learning, 2017, pp. 3319--3328.
+\newline\urlprefix\url{http://proceedings.mlr.press/v70/sundararajan17a.html}
+
+\bibitem{lundberg2017unified}
+S.~M. Lundberg, S.-I. Lee, A unified approach to interpreting model
+  predictions, in: Advances in Neural Information Processing Systems, Vol.~30,
+  2017.
+\newblock \href {https://doi.org/10.48550/arXiv.1705.07874}
+  {\path{doi:10.48550/arXiv.1705.07874}}.
+
+\bibitem{selvaraju2017grad}
+R.~R. Selvaraju, M.~Cogswell, A.~Das, A.~Vedaldi, D.~Parikh, D.~Batra,
+  Grad-cam: Visual explanations from deep networks via gradient-based
+  localization, International Journal of Computer Vision 128~(2) (2020)
+  336--359.
+\newblock \href {https://doi.org/10.1007/s11263-019-01228-7}
+  {\path{doi:10.1007/s11263-019-01228-7}}.
+
+\bibitem{ismail2020benchmarking}
+A.~A. Ismail, M.~Gunady, H.~Corrada~Bravo, S.~Feizi, Benchmarking deep learning
+  interpretability in time series predictions, in: Advances in Neural
+  Information Processing Systems, Vol.~33, 2020, pp. 6441--6452.
+\newblock \href {https://doi.org/10.48550/arXiv.2010.13924}
+  {\path{doi:10.48550/arXiv.2010.13924}}.
+
+\bibitem{tonekaboni2020went}
+S.~Tonekaboni, S.~Joshi, M.~D. McCradden, A.~Goldenberg, What went wrong and
+  when? instance-wise feature importance for time-series black-box models, in:
+  Advances in Neural Information Processing Systems, Vol.~33, 2020, pp.
+  7982--7992.
+\newblock \href {https://doi.org/10.48550/arXiv.2003.02821}
+  {\path{doi:10.48550/arXiv.2003.02821}}.
+
+\bibitem{korkmaz2021deep}
+O.~Korkmaz, Deep learning-based robust ecg generation and classification,
+  Computers in Biology and Medicine 135 (2021) 104646.
+\newblock \href {https://doi.org/10.1016/j.compbiomed.2021.104646}
+  {\path{doi:10.1016/j.compbiomed.2021.104646}}.
+
+\bibitem{neifar2024diffecg}
+N.~Neifar, et~al., Diffecg: A versatile probabilistic diffusion model for ecg
+  signals synthesis, in: 2024 IEEE/ACIS 22nd International Conference on
+  Software Engineering Research, Management and Applications (SERA), IEEE,
+  2024, pp. 182--188.
+\newblock \href {https://doi.org/10.48550/arXiv.2306.01875}
+  {\path{doi:10.48550/arXiv.2306.01875}}.
+
+\bibitem{chattopadhay2018grad}
+A.~Chattopadhay, A.~Sarkar, P.~Howlader, V.~N. Balasubramanian, Grad-cam++:
+  Generalized gradient-based visual explanations for deep convolutional
+  networks, in: 2018 IEEE Winter Conference on Applications of Computer Vision
+  (WACV), IEEE, 2018, pp. 839--847.
+\newblock \href {https://doi.org/10.1109/WACV.2018.00097}
+  {\path{doi:10.1109/WACV.2018.00097}}.
+
+\bibitem{liu2018open}
+F.~Liu, C.~Liu, L.~Zhao, X.~Zhang, X.~Wu, X.~Xu, Y.~Ding, S.~Yin, Z.~Chen,
+  J.~Li, et~al., An open access database for evaluating the algorithms of
+  electrocardiogram rhythm and morphology abnormality detection, Journal of
+  Medical Imaging and Health Informatics 8~(7) (2018) 1368--1373.
+\newblock \href {https://doi.org/10.1166/jmihi.2018.2442}
+  {\path{doi:10.1166/jmihi.2018.2442}}.
+
+\bibitem{fawaz2019deep}
+H.~I. Fawaz, G.~Forestier, J.~Weber, L.~Idoumghar, P.-A. Muller, Deep learning
+  for time series classification: a review, Data Mining and Knowledge Discovery
+  33~(4) (2019) 917--963.
+\newblock \href {https://doi.org/10.1007/s10618-019-00619-1}
+  {\path{doi:10.1007/s10618-019-00619-1}}.
+
+\bibitem{siontis2021artificial}
+K.~C. Siontis, P.~A. Noseworthy, Z.~I. Attia, P.~A. Friedman, Artificial
+  intelligence-enhanced electrocardiography in cardiovascular disease
+  management, Nature Reviews Cardiology 18~(7) (2021) 465--478.
+\newblock \href {https://doi.org/10.1038/s41569-020-00503-2}
+  {\path{doi:10.1038/s41569-020-00503-2}}.
+
+\bibitem{smigiel2021ecg}
+S.~Smigiel, K.~Pa{\l}ka, et~al., Ecg signal classification using deep learning
+  techniques based on the ptb-xl dataset, Entropy 23~(9) (2021) 1121.
+\newblock \href {https://doi.org/10.3390/e23091121}
+  {\path{doi:10.3390/e23091121}}.
+
+\bibitem{mehari2022self}
+T.~Mehari, N.~Strodthoff, Self-supervised representation learning from 12-lead
+  ecg data, Computers in Biology and Medicine 141 (2022) 105114.
+\newblock \href {https://doi.org/10.1016/j.compbiomed.2021.105114}
+  {\path{doi:10.1016/j.compbiomed.2021.105114}}.
+
+\bibitem{mehari2023mlsa}
+T.~Mehari, N.~Strodthoff, Mlsa-net: Multi-lead spatial attention network for
+  12-lead ecg classification, IEEE Transactions on Biomedical Engineering
+  70~(9) (2023) 2580--2591.
+
+\bibitem{niu2023transecg}
+Z.~Niu, et~al., Transecg: A transformer-based model for 12-lead ecg
+  classification, Biomedical Signal Processing and Control 85 (2023) 104889.
+
+\bibitem{che2021constrained}
+C.~Che, P.~Zhang, M.~Zhu, Y.~Qu, B.~Jin, Constrained transformer network for
+  ecg signal processing and arrhythmia classification, BMC Medical Informatics
+  and Decision Making 21~(1) (2021) 1--15.
+\newblock \href {https://doi.org/10.1186/s12911-021-01543-5}
+  {\path{doi:10.1186/s12911-021-01543-5}}.
+
+\end{thebibliography}

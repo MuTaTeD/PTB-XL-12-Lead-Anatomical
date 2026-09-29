@@ -1,0 +1,57 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Datasets and Large Binary Data (Never upload patient waveforms or PhysioNet data)
+*.zip
+*.tar.gz
+*.tgz
+*.rar
+*.npz
+*.dat
+*.hea
+*.mat
+dataset*/
+records100/
+records500/
+cpsc*/
+CPSC*/
+cpsc_2018/
+
+# Legacy DDPM trial checkpoints (keep primary fold 1-10 checkpoints only)
+checkpoints/backup_epoch45/
+checkpoints/major physics panelty/
+checkpoints/old training/
+
+# Symlinks & Local Environment
+libdevice.10.bc
+.env
+venv/
+env/
+ENV/
+
+# LaTeX auxiliary build files (Keep final .pdf and .tex sources)
+*.aux
+*.log
+*.blg
+*.out
+*.toc
+*.synctex.gz
+texput.log
+sample.aux
+sample.log
+manuscript/main_single.tex
+manuscript/main_single.aux
+manuscript/main_single.log
+manuscript/main_single.blg
+manuscript/main_single.bbl
+
+# OS and Editor junk
+.DS_Store
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
