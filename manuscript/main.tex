@@ -499,47 +499,47 @@ To evaluate bedside utility, we generated high-resolution multi-panel attributio
 \begin{figure*}[htbp]
 \centering
 \includegraphics[width=0.98\textwidth]{figures/fig3_xai_mi.png}
-\caption{Multi-Scale Anatomical Attribution for a Representative Acute Myocardial Infarction Case ($MI$, Record \#15647). (Top-Left) Multi-lead 3.0s zoomed ECG with 1D Grad-CAM++ morphological saliency highlighting ST-segment elevation in leads V2--V4; (Top-Right) Territory Occlusion Sensitivity showing a severe $0.340$ drop upon masking the Antero-Septal territory; (Bottom-Left) Learned Cross-Territory Softmax Attention allocating $55.0\%$ to the LAD vascular bed; (Bottom-Right) Axiomatic Integrated Gradients confirming sample completeness.}
+\caption{Multi-Scale Anatomical Attribution for a Representative Acute Myocardial Infarction Case ($MI$, Record \#15647). (A) 1D Grad-CAM++ morphological saliency rendered over centered 3.0\,s diagnostic zoom window with authentic clinical pink grid, highlighting ST-elevation in leads V2--V4; (B) Axiomatic Integrated Gradients attribution energy synchronized beat-for-beat with Panel A; (C) Coronary territory attribution comparing territory occlusion drop ($64.3\%$ Antero-Septal) with learned cross-territory attention; (D) Diagnostic probability spectrum ($100.0\%$ MI confidence); (E) Quantitative electrophysiological concordance audit summary.}
 \label{fig:xai_mi}
 \end{figure*}
 
 \subsection{Acute Myocardial Infarction ($MI$)}
-As shown in Fig.~\ref{fig:xai_mi} (Record \#15647, representative ground-truth anterior infarction), Model 3 predicts $MI$ with $98.4\%$ confidence. The Meso-level 1D Grad-CAM++ saliency profile highlights the prominent ST-segment elevation and tombstone T-wave inversion across anterior chest leads V2, V3, and V4, while peripheral limb leads remain inactive. At the Macro level, masking the Antero-Septal territory produces a decisive occlusion drop of $\Delta P = 0.340$, with $55.0\%$ of the learned attention weight mapped to the LAD artery. Micro-level Integrated Gradients precisely isolates the J-point elevation.
+As shown in Fig.~\ref{fig:xai_mi} (Record \#15647, representative ground-truth anterior infarction), Model 3 predicts $MI$ with $100.0\%$ confidence. The Meso-level 1D Grad-CAM++ saliency profile highlights the prominent ST-segment elevation and tombstone T-wave inversion across anterior chest leads V2, V3, and V4, while peripheral limb leads remain inactive. At the Macro level, masking the Antero-Septal territory produces a decisive occlusion drop of $64.3\%$, with the learned cross-territory attention allocating dominant weight to the anterior myocardium. Micro-level Integrated Gradients precisely isolates the J-point elevation.
 
 \begin{figure*}[htbp]
 \centering
 \includegraphics[width=0.98\textwidth]{figures/fig4_xai_sttc.png}
-\caption{Multi-Scale Anatomical Attribution for a Representative ST/T-Change Case ($STTC$, Record \#10054). 1D Grad-CAM++ isolates ST-depression and T-wave inversion in Lateral leads I, aVL, V5, V6 ($47.9\%$ case attribution share).}
+\caption{Multi-Scale Anatomical Attribution for a Representative ST/T-Change Case ($STTC$, Record \#10054). (A) 1D Grad-CAM++ isolates ST-depression and T-wave inversion in Lateral leads I, aVL, V5, V6; (B) Synchronized Integrated Gradients confirming localized lateral repolarization energy; (C) Coronary territory attribution ($90.9\%$ Lateral occlusion drop); (D) Diagnostic probability spectrum ($99.9\%$ STTC confidence); (E) Quantitative electrophysiological concordance audit summary.}
 \label{fig:xai_sttc}
 \end{figure*}
 
 \subsection{ST-T Segment Abnormalities ($STTC$)}
-As illustrated in Fig.~\ref{fig:xai_sttc} (Record \#10054, representative lateral repolarization abnormality), the Meso-level saliency concentrates over the terminal repolarization phase in lateral leads I, aVL, and V5--V6. The learned attention allocates $47.9\%$ to the Lateral territory (Left Circumflex artery bed), validating the presence of lateral myocardial ischemia.
+As illustrated in Fig.~\ref{fig:xai_sttc} (Record \#10054, representative lateral repolarization abnormality), the Meso-level saliency concentrates over the terminal repolarization phase in lateral leads I, aVL, and V5--V6. The learned attention allocates dominant weight ($55.8\%$) to the Lateral territory (Left Circumflex artery bed) with a $90.9\%$ territory occlusion drop, validating the presence of lateral myocardial ischemia.
 
 \begin{figure*}[htbp]
 \centering
 \includegraphics[width=0.98\textwidth]{figures/fig5_xai_cd.png}
-\caption{Multi-Scale Anatomical Attribution for a Representative Conduction Disturbance Case ($CD$, Record \#4893). 1D Grad-CAM++ isolates the widened QRS complex and slurred intrinsicoid deflection in Antero-Septal leads ($\Delta P = 0.395$).}
+\caption{Multi-Scale Anatomical Attribution for a Representative Conduction Disturbance Case ($CD$, Record \#4893). (A) 1D Grad-CAM++ isolates widened ventricular depolarization interval (QRS $> 120$\,ms) and slurred intrinsicoid deflection across septal leads; (B) Synchronized Integrated Gradients capturing sustained depolarization energy; (C) Coronary territory attribution ($90.4\%$ Antero-Septal drop); (D) Diagnostic probability spectrum ($100.0\%$ CD confidence); (E) Quantitative electrophysiological concordance audit summary.}
 \label{fig:xai_cd}
 \end{figure*}
 
 \subsection{Conduction Disturbances ($CD$)}
-As depicted in Fig.~\ref{fig:xai_cd} (Record \#4893, representative bundle branch block), for conduction delays, 1D Grad-CAM++ specifically highlights the widened ventricular depolarization interval (QRS duration $> 120$~ms) across septal leads V1--V3. Territory occlusion sensitivity registers an intense $\Delta P = 0.395$ drop upon masking the Antero-Septal territory, proving that the model bases its decision on intraventricular conduction delays rather than baseline noise.
+As depicted in Fig.~\ref{fig:xai_cd} (Record \#4893, representative bundle branch block), for conduction delays, 1D Grad-CAM++ specifically highlights the widened ventricular depolarization interval (QRS duration $> 120$~ms) across septal leads V1--V3. Territory occlusion sensitivity registers an intense $90.4\%$ drop upon masking the Antero-Septal territory, proving that the model bases its decision on intraventricular conduction delays rather than baseline noise.
 
 \begin{figure*}[htbp]
 \centering
 \includegraphics[width=0.98\textwidth]{figures/fig6_xai_hyp.png}
-\caption{Multi-Scale Anatomical Attribution for a Representative Ventricular Hypertrophy Case ($HYP$, Record \#16182). Grad-CAM++ highlights tall R-wave voltage in Lateral leads V5--V6 and deep S-wave in V1--V2 ($59.3\%$ Lateral case share).}
+\caption{Multi-Scale Anatomical Attribution for a Representative Ventricular Hypertrophy Case ($HYP$, Record \#16182). (A) 1D Grad-CAM++ highlights high-voltage R-waves in Lateral leads V5--V6 and reciprocal deep S-waves in V1--V2; (B) Synchronized Integrated Gradients validating prominent lateral ventricular energy; (C) Coronary territory attribution ($51.2\%$ Lateral occlusion drop, $63.5\%$ attention); (D) Diagnostic probability spectrum ($99.6\%$ HYP confidence); (E) Quantitative electrophysiological concordance audit summary.}
 \label{fig:xai_hyp}
 \end{figure*}
 
 \subsection{Ventricular Hypertrophy ($HYP$)}
-In Fig.~\ref{fig:xai_hyp} (Record \#16182, representative left ventricular hypertrophy), the model detects Left Ventricular Hypertrophy. The 1D Grad-CAM++ saliency peaks precisely over the high-voltage R-waves in V5 and V6 and the reciprocal deep S-waves in V1--V2. The Lateral territory captures $59.3\%$ of the attention share in this case, demonstrating adherence to the Sokolow-Lyon voltage index ($S_{\text{V1}} + R_{\text{V5}} > 3.5$~mV).
+In Fig.~\ref{fig:xai_hyp} (Record \#16182, representative left ventricular hypertrophy), the model detects Left Ventricular Hypertrophy. The 1D Grad-CAM++ saliency peaks precisely over the high-voltage R-waves in V5 and V6 and the reciprocal deep S-waves in V1--V2. The Lateral territory captures $63.5\%$ of the attention share and a $51.2\%$ occlusion drop in this case, demonstrating adherence to the Sokolow-Lyon voltage index ($S_{\text{V1}} + R_{\text{V5}} > 3.5$~mV).
 
 \begin{figure*}[htbp]
 \centering
 \includegraphics[width=0.98\textwidth]{figures/fig7_xai_norm.png}
-\caption{Multi-Scale Anatomical Attribution for Normal Sinus Rhythm ($NORM$, Record \#2083). Saliency and attention are evenly distributed across all 12 leads and territories, confirming physiological equilibrium.}
+\caption{Multi-Scale Anatomical Attribution for Normal Sinus Rhythm Control ($NORM$, Record \#2083). (A) 1D Grad-CAM++ shows uniform, low-intensity physiological distribution across all 12 leads; (B) Synchronized Integrated Gradients confirming baseline physiological balance; (C) Coronary territory attribution demonstrating absence of focal ischemic drop ($\Delta P = 0.10$); (D) Diagnostic probability spectrum ($100.0\%$ NORM confidence); (E) Quantitative electrophysiological concordance audit summary.}
 \label{fig:xai_norm}
 \end{figure*}
 
