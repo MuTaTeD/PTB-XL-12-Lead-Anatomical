@@ -1,0 +1,585 @@
+\documentclass[12pt]{elsarticle}
+\usepackage[margin=1in]{geometry}
+
+\journal{Computers in Biology and Medicine}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{textcomp}
+\usepackage{xcolor}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{hyperref}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{algorithm}
+\usepackage{algorithmic}
+
+% Reduce hyphenation
+\tolerance=2000
+\emergencystretch=2em
+\hyphenpenalty=5000
+\exhyphenpenalty=5000
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    citecolor=blue,
+    urlcolor=blue
+}
+
+\begin{document}
+
+\begin{frontmatter}
+
+\title{Anatomically-Decomposed ResNet with Stochastic Territory-Dropout and Multi-Scale Attribution for Robust, Interpretable 12-Lead Electrocardiogram Classification}
+
+\author[1]{Awais Muhammad Lodhi\corref{cor1}}
+\ead{awais.lodhi@ucp.edu.pk}
+\author[1]{Dr. Ghulam Mustafa}
+\ead{ghulammustafa02@ucp.edu.pk}
+
+\address[1]{Department of Computer Science, FOIT\&CS, UCP, Pakistan}
+\cortext[cor1]{Corresponding author.}
+
+\begin{abstract}
+Deep neural networks have achieved expert-level diagnostic accuracy in automated 12-lead electrocardiogram (ECG) classification. However, their clinical adoption remains severely hindered by opaque decision boundaries and the unreliability of naive, uncalibrated 1D saliency attributions that fail to reflect coronary anatomy. Furthermore, generative counterfactual approaches (GANs and diffusion models) frequently suffer from training instability, temporal phase collapse, and rhythm distortion, generating unrealistic hallucinations rather than faithful explanations. To address these fundamental challenges, we propose an \textbf{Anatomical Territory-Dropout Squeeze-and-Excitation 1D ResNet (SE-ResNet1D)} coupled with a hierarchical \textbf{Multi-Scale Anatomical Explainability (XAI) Framework}. By decomposing 12-lead signals into four physiological coronary vascular territories---Inferior ($\text{II}, \text{III}, \text{aVF}$), Antero-Septal ($\text{V1}-\text{V4}$), Lateral ($\text{I}, \text{aVL}, \text{V5}, \text{V6}$), and Cavity Reciprocal ($\text{aVR}$)---and enforcing stochastic lead-territory dropout ($p_{\text{drop}} = 0.15$) during training, our classifier eliminates inter-lead shortcut co-adaptation. On the benchmark PTB-XL dataset (21,799 records, cyclic 10-fold cross-validation), the model establishes a state-of-the-art Macro ROC-AUC of \textbf{0.9329} [95\% CI: 0.9270--0.9388] (F1 = \textbf{0.7836}), systematically outperforming flat ResNets ($0.9248$) and published literature baselines. Our Multi-Scale Anatomical XAI framework bridges three clinical tiers: (1) \textit{Macro-level} vascular territory occlusion sensitivity ($\Delta P$) and learned cross-territory softmax attention; (2) \textit{Meso-level} 1D Multi-Branch Grad-CAM++ isolating morphological hallmarks over 3.0-second clinical diagnostic windows; and (3) \textit{Micro-level} axiomatic Integrated Gradients satisfying sample-level completeness ($|\sum \text{IG} - \Delta \text{Score}| < 0.02$). Audited across the full held-out PTB-XL Fold 10 test cohort ($N = 2,198$ records), Myocardial Infarction predictions ($N=550$) exhibit \textbf{86.5\%} dominant attribution ($\Delta P = 0.277$), with per-patient subclass validation allocating \textbf{82.8\%} attribution to Antero-Septal leads in LAD infarcts ($N=269$) and \textbf{52.2\%} to Inferior leads in RCA infarcts ($N=320$); Hypertrophy ($N=262$) allocates \textbf{58.3\%} (66.1\% in confident true positives) to Lateral leads adhering to Sokolow-Lyon criteria; Conduction Disturbances ($N=496$) assign \textbf{43.9\%} to Inferior and \textbf{33.0\%} to Antero-Septal leads; and Normal controls ($N=963$) demonstrate balanced physiological equilibrium ($\Delta P = 0.117$). External zero-shot validation on 6,877 CPSC2018 records confirms robust out-of-distribution transferability (Macro ROC-AUC = \textbf{0.7849}, Normal Sinus Rhythm = \textbf{0.9049}).
+\end{abstract}
+
+% \begin{graphicalabstract}
+% \centering
+% \includegraphics[width=0.95\linewidth]{figures/fig1_10fold_classifier.png}
+% \end{graphicalabstract}
+
+% \begin{highlights}
+% \item Anatomical Lead-Territory SE-ResNet1D explicitly decomposes 12-lead ECGs into four coronary vascular beds.
+% \item Stochastic territory-dropout eliminates inter-lead shortcut learning, achieving benchmark 0.9329 ROC-AUC on PTB-XL.
+% \item Tri-fold Multi-Scale Anatomical XAI Framework integrates Macro Territory Occlusion, Meso 1D Grad-CAM++, and Micro Integrated Gradients.
+% \item Quantitative test cohort audit proves tight electrophysiological fidelity (55.0\% LAD / 31.2\% RCA attribution for MI, 59.3\% LV wall for HYP).
+% \item High-resolution 3.0s clinical pink-grid multi-lead attribution panels provide transparent bedside decision support.
+% \item Robust zero-shot external generalization on 6,877 CPSC2018 records (0.7849 Macro AUC, 0.9049 Normal AUC).
+% \end{highlights}
+
+\begin{keyword}
+12-lead Electrocardiogram (ECG) \sep Anatomical Lead Decomposition \sep Territory-Dropout Regularization \sep Multi-Scale Explainability \sep Grad-CAM++ \sep Integrated Gradients \sep Zero-Shot Generalization
+\end{keyword}
+
+\end{frontmatter}
+
+\section{Introduction}
+\label{sec:intro}
+
+Electrocardiology is the primary non-invasive diagnostic modality in clinical cardiology, capturing the spatial and temporal electrophysiological dynamics of cardiac depolarization and repolarization~\cite{strodthoff2020deep}. The standard 12-lead electrocardiogram (ECG) records cardiac electrical potentials across 12 distinct anatomical vectors, providing critical diagnostic indicators for Myocardial Infarction ($MI$), Ventricular Hypertrophy ($HYP$), ST-T segment abnormalities ($STTC$), and Conduction Disturbances ($CD$)~\cite{wagner2020ptb}. Over the past decade, deep neural networks---specifically 1D Convolutional Neural Networks (CNNs) and Residual Networks (ResNets)---have achieved diagnostic performance matching or exceeding board-certified cardiologists across large-scale multi-label ECG benchmarks~\cite{ribeiro2020automatic, hannun2019cardiologist}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.82\textwidth]{figures/fig1_10fold_classifier.png}
+\caption{Stratified Patient-Wise Test Set ROC and PR Curves comparing Model 1 (Baseline SE-ResNet1D), Model 2 (Anatomical Multi-Branch SE-ResNet1D), and Model 3 (Anatomical Territory-Dropout SE-ResNet1D) on the benchmark PTB-XL dataset (21,799 records).}
+\label{fig:10fold_classifier}
+\end{figure*}
+
+Despite these remarkable empirical achievements, the translation of deep learning models into clinical practice remains severely constrained by their opaque ``black-box'' nature. When an automated AI diagnostic model flags a 12-lead ECG as exhibiting Myocardial Infarction, clinicians cannot safely accept the prediction without verifying whether the model is responding to genuine regional electrophysiological pathology or spurious dataset artifacts. Traditional explainable artificial intelligence (XAI) techniques, such as raw saliency maps, Integrated Gradients~\cite{sundararajan2017axiomatic}, SHAP~\cite{lundberg2017unified}, and Grad-CAM~\cite{selvaraju2017grad}, have been adapted from 2D computer vision to highlight temporal intervals or lead channels. However, when applied to 12-lead time-series as flat numerical matrices, these naive attribution methods exhibit fundamental clinical deficiencies:
+\begin{enumerate}
+    \item \textbf{Absence of Anatomical Lead Grounding}: Flat 1D models treat the 12 leads as arbitrary numerical channels, ignoring the fact that standard 12-lead ECGs represent four distinct, mutually orthogonal coronary vascular beds (Inferior, Antero-Septal, Lateral, and Cavity). Saliency maps computed over flat channels fail to aggregate importance into clinically actionable vascular territories.
+    \item \textbf{High-Frequency Noise \& Baseline Sensitivity}: Raw gradient saliency maps are notoriously uncalibrated and noisy, frequently highlighting non-diagnostic baseline wander, electrode motion artifacts, and high-frequency muscle tremor~\cite{ismail2020benchmarking, tonekaboni2020went}.
+    \item \textbf{Failure of Generative Counterfactuals}: Recent attempts to replace saliency maps with generative counterfactuals (e.g., GANs~\cite{korkmaz2021deep} or diffusion models~\cite{neifar2024diffecg}) frequently suffer from training instability, temporal mode collapse, and rhythm distortion (e.g., heart rate drift and R-peak collapse), introducing unverified generative hallucinations rather than trustworthy explanations.
+\end{enumerate}
+
+To overcome these deficiencies, we propose a physiologically grounded architecture paired with an intrinsically verifiable \textbf{Multi-Scale Anatomical Explainability (XAI) Framework}. Rather than treating 12 leads as a monolithic array, our architecture explicitly routes leads into dedicated anatomical branches and enforces stochastic \textbf{Territory-Dropout Regularization}, eliminating inter-lead shortcut co-adaptation. Our explainability framework then interrogates the trained model across three hierarchical tiers: Macro-scale vascular territory occlusion sensitivity ($\Delta P$) and learned bottleneck attention; Meso-scale 1D Multi-Branch Grad-CAM++~\cite{chattopadhay2018grad} highlighting waveform landmarks across high-resolution 3.0-second diagnostic windows; and Micro-scale axiomatic Integrated Gradients~\cite{sundararajan2017axiomatic} satisfying mathematical completeness.
+
+\subsection{Comparison of Attribution Paradigms}
+Table~\ref{tab:xai_comparison} summarizes the conceptual, mathematical, and clinical differences between conventional naive 1D saliency methods, generative counterfactuals, and our proposed Multi-Scale Anatomical Explainability Framework.
+
+\begin{table*}[t]
+\caption{Conceptual, Mathematical, and Clinical Comparison between Naive 1D Saliency Methods, Generative Counterfactuals, and Proposed Multi-Scale Anatomical Explainability Framework.}
+\label{tab:xai_comparison}
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{p{3.0cm}p{4.1cm}p{4.5cm}p{5.1cm}}
+\toprule
+\textbf{Evaluation Dimension} & \textbf{Naive 1D Saliency / Heatmaps} & \textbf{Generative Counterfactuals (GANs/DDPM)} & \textbf{Proposed Multi-Scale Anatomical XAI} \\
+\midrule
+\textbf{Output Modality} & Pointwise numerical gradient heatmaps & Synthesized artificial time-series $\mathbf{x}^{\text{cf}}$ & Hierarchical Macro ($\Delta P$), Meso (1D Grad-CAM++), and Micro (IG) on 3.0s grid \\
+\textbf{Anatomical Grounding} & None (treats 12 leads as flat array) & Unconstrained or fragile penalty terms & Direct mapping to Coronary Territories (Inferior, Antero-Septal, Lateral, Cavity) \\
+\textbf{Morphological Fidelity} & High noise sensitivity (wandering baseline) & High risk of rhythm distortion \& R-peak loss & Direct visualization of ST-segments, QRS complexes, and voltages on 3.0s clinical pink grid \\
+\textbf{Mathematical Basis} & Heuristic first-order gradients $\frac{\partial y}{\partial \mathbf{x}}$ & Reverse diffusion trajectory $\mathbf{x}_t \to \mathbf{x}_0$ & Axiomatic completeness ($|\sum \text{IG} - \Delta \text{Score}| < 0.02$) and empirical occlusion drop $\Delta P$ \\
+\textbf{Hallucination Risk} & Moderate (feature attribution artifacts) & High (generative hallucination / synthetic mode collapse) & None (no generative synthesis is performed); attribution faithfulness is bounded, not guaranteed, by parameter-randomization sanity checks \\
+\textbf{Clinical Bedside Utility} & Low (opaque, uncalibrated) & Questionable (clinicians distrust synthetic ECGs) & High (mirrors standard cardiologist coronary localization and diagnostic criteria) \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+\subsection{Core Scientific Contributions}
+Our work delivers four major scientific contributions:
+\begin{enumerate}
+    \item \textbf{Anatomical Lead-Territory Classifier Architecture}: We design a 12-lead multi-branch SE-ResNet1D classifier that explicitly partitions the 12 ECG leads into four physiological coronary vascular territories: Inferior ($\text{II}, \text{III}, \text{aVF}$), Antero-Septal ($\text{V1}-\text{V4}$), Lateral ($\text{I}, \text{aVL}, \text{V5}, \text{V6}$), and Cavity Reciprocal ($\text{aVR}$).
+    \item \textbf{Territory-Dropout Regularization}: We formulate stochastic lead-territory dropout ($p_{\text{drop}} = 0.15$) during training, forcing the network to eliminate inter-lead shortcut learning and establishing a new state-of-the-art Macro ROC-AUC of \textbf{0.9329} [95\% CI: 0.9270--0.9388] on PTB-XL (21,799 records).
+    \item \textbf{Hierarchical Multi-Scale Anatomical XAI Engine}: We implement a tri-fold explainability suite integrating Macro-level territory occlusion sensitivity ($\Delta P$) and learned bottleneck attention, Meso-level 1D Multi-Branch Grad-CAM++, and Micro-level axiomatic Integrated Gradients satisfying mathematical completeness.
+    \item \textbf{Empirical Clinical Audit \& Zero-Shot Validation}: We execute a comprehensive quantitative attribution audit across the entire held-out Fold 10 test cohort ($N=2,198$) with per-subclass coronary ground-truth validation, coupled with high-resolution 3.0-second clinical pink-grid visualizations and robust zero-shot external generalization across \textbf{6,877 CPSC2018 records} (Macro ROC-AUC = \textbf{0.7849}, Normal Sinus Rhythm = \textbf{0.9049}).
+\end{enumerate}
+
+
+\section{Related Work}
+\label{sec:related}
+
+\subsection{Deep Learning in 12-Lead Electrocardiology}
+The application of deep learning to automated ECG interpretation has expanded rapidly following the release of open-access databases such as PTB-XL~\cite{wagner2020ptb} and CPSC2018~\cite{liu2018open}. Strodthoff et al.~\cite{strodthoff2020deep} established standardized benchmarks evaluating 1D convolutional ResNets and Inception networks, while Fawaz et al.~\cite{fawaz2019deep} and Siontis et al.~\cite{siontis2021artificial} highlighted the broad clinical utility of these architectures for time-series. Ribeiro et al.~\cite{ribeiro2020automatic} demonstrated that deep neural networks trained on over 2 million ECG records achieved clinical-grade diagnostic precision. Recent advances have sought to push performance further by utilizing entropy-based features~\cite{smigiel2021ecg}, self-supervised contrastive representation learning~\cite{mehari2022self}, and constrained transformer architectures~\cite{che2021constrained}. However, standard 1D and 2D implementations continue to treat 12-lead ECG signals as uniform matrices, largely ignoring the distinct spatial anatomical perspectives represented by individual coronary lead groups.
+
+\subsection{Explainable AI and Attribution in Biomedical Time-Series}
+The opaqueness of deep neural networks has motivated significant research into Explainable AI (XAI) for biomedical signals. Post-hoc attribution methods developed for computer vision, such as Class Activation Mapping (CAM) and Grad-CAM~\cite{selvaraju2017grad}, have been translated to 1D physiological time-series. Chattopadhay et al.~\cite{chattopadhay2018grad} introduced Grad-CAM++, utilizing second- and third-order gradient Taylor expansions to provide fine-grained localization for multiple co-occurring morphological instances. Sundararajan et al.~\cite{sundararajan2017axiomatic} introduced Integrated Gradients, which resolves gradient saturation by integrating gradients along a straight line path from a neutral baseline, satisfying the formal axioms of Completeness and Implementation Invariance. Similarly, Lundberg and Lee~\cite{lundberg2017unified} proposed SHAP based on cooperative game theory. However, applying these methods to 12-lead ECGs without anatomical lead partitioning results in uncalibrated feature sensitivity, where attributions scatter unpredictably across irrelevant leads and amplify high-frequency baseline artifacts~\cite{ismail2020benchmarking, tonekaboni2020went}.
+
+\subsection{Spatial Lead Partitioning and Clinical Electrophysiological Foundations}
+In clinical cardiology, a 12-lead ECG is never interpreted as an undifferentiated matrix. Instead, cardiologists evaluate leads in strict anatomical clusters corresponding to coronary arterial vascular beds: the Inferior leads ($\text{II}, \text{III}, \text{aVF}$) assess the Right Coronary Artery (RCA); the Antero-Septal leads ($\text{V1}-\text{V4}$) evaluate the Left Anterior Descending (LAD) artery; the Lateral leads ($\text{I}, \text{aVL}, \text{V5}, \text{V6}$) evaluate the Left Circumflex (LCx) artery; and lead $\text{aVR}$ provides cavity-reciprocal voltage reflections~\cite{wagner2020ptb}. While recent works have explored multi-lead grouping or spatial attention~\cite{che2021constrained}, they do not enforce independent representation learning across vascular beds during training, allowing models to exploit spurious inter-lead co-dependencies. In this work, we structurally enforce coronary vascular decomposition through dedicated convolutional branches and stochastic territory dropout, providing an intrinsically aligned foundation for multi-scale attribution.
+
+\section{Materials and Methods}
+\label{sec:methods}
+
+\subsection{Datasets and Preprocessing Pipeline}
+We utilize two primary clinical 12-lead ECG repositories:
+
+\subsubsection{PTB-XL Dataset}
+The PTB-XL dataset~\cite{wagner2020ptb} contains 21,799 clinical 10-second 12-lead ECG records from 18,885 individual patients. Each record is annotated with SCP-ECG diagnostic statements mapped into 5 standardized diagnostic superclasses: Normal Sinus Rhythm ($NORM$), Myocardial Infarction ($MI$), ST/T Changes ($STTC$), Conduction Disturbances ($CD$), and Hypertrophy ($HYP$). We utilize the 100~Hz sampled records ($T = 1000$ time steps, $C = 12$ channels) and adhere to a strict patient-wise cyclic 10-fold cross-validation split strategy to ensure unbiased evaluation across the entire cohort.
+
+\subsubsection{CPSC2018 Dataset}
+The CPSC2018 dataset~\cite{liu2018open} contains 6,877 12-lead ECG records sampled natively at 500~Hz. To evaluate out-of-distribution zero-shot generalization, we resample all CPSC2018 records from 500~Hz to 100~Hz using a 5:1 polyphase anti-aliasing filter (\texttt{scipy.signal.resample\_poly}). Signals are filtered with a 3rd order zero-phase Butterworth bandpass filter ($0.5 - 40.0$~Hz). Signal length is normalized to 1,000 samples by head-cropping signals $> 10$~seconds (64.72\% of records) and edge-padding signals $< 10$~seconds (0.15\% of records). SNOMED CT diagnostic codes are mapped to PTB-XL superclasses ($NORM$, $CD$, $STTC$) using PhysioNet/CinC Challenge standards.
+
+\subsection{Logical Architectural Progression: Model 1 to Model 3}
+To systematically isolate the diagnostic and regularizing impacts of anatomical lead decomposition and territory dropout, we designed a progressive three-model architectural sequence:
+
+\begin{enumerate}
+    \item \textbf{Model 1 (Baseline 1D ResNet + SE Attention)}: Represents the standard deep learning approach in literature~\cite{strodthoff2020deep}. It processes all 12 leads as a flat 12-channel 1D array through shared convolutional ResNet blocks with Squeeze-and-Excitation (SE) attention. While achieving high training accuracy, Model 1 suffers from \textbf{spatial shortcut learning}: the network relies heavily on co-correlated leads (e.g., using lead II as a shortcut for all rhythm and ischemia predictions) and overfits to dataset-specific electrode noise configurations (Test Macro ROC-AUC = $0.9248$).
+    
+    \item \textbf{Model 2 (Anatomical Multi-Branch SE-ResNet1D)}: Introduces physiological lead decomposition by splitting the 12 leads into four independent lead-territory branches:
+    \begin{align}
+    \mathcal{L}_{\text{Inferior}} &= \{\text{II}, \text{III}, \text{aVF}\} \\
+    \mathcal{L}_{\text{Antero-Septal}} &= \{\text{V1}, \text{V2}, \text{V3}, \text{V4}\} \\
+    \mathcal{L}_{\text{Lateral}} &= \{\text{I}, \text{aVL}, \text{V5}, \text{V6}\} \\
+    \mathcal{L}_{\text{Cavity}} &= \{\text{aVR}\}
+    \end{align}
+    Each branch extracts features exclusively from its designated anatomical leads through dedicated 1D ResNet blocks. This prevents inter-territory feature mixing in early layers and enforces regional electrophysiological awareness, raising Test Macro ROC-AUC to $0.9295$. However, during joint end-to-end training, individual branches can still develop co-dependencies.
+    
+    \item \textbf{Model 3 (Anatomical Territory-Dropout SE-ResNet1D -- Proposed)}: Incorporates stochastic lead-territory dropout during training. At each training iteration, entire anatomical branch feature representations $\mathbf{h}_k$ ($k \in \{1, 2, 3, 4\}$) are zeroed out with probability $p_{\text{drop}} = 0.15$:
+    \begin{equation}
+    \mathbf{h}_k = m_k \cdot \text{SE-ResBlock}(\mathbf{x}_{\mathcal{L}_k}), \quad m_k \sim \text{Bernoulli}(1 - p_{\text{drop}})
+    \end{equation}
+    This forces the classifier to develop self-sufficient, robust diagnostic features within each individual lead territory. Territory-dropout eliminates spatial shortcut co-adaptation, achieving state-of-the-art Test Macro ROC-AUC of \textbf{0.9329} on PTB-XL and enabling robust zero-shot generalization to external datasets (CPSC2018 Macro ROC-AUC = \textbf{0.7849}).
+\end{enumerate}
+
+\subsubsection{Data Augmentation \& Structural Regularization}
+To protect against structural overfitting and single-spike memorization of baseline wander, all three classification models were trained using rigorous regularization strategies. Structurally, we applied $L_2$ weight decay ($2 \times 10^{-5}$), spatial dropout ($0.08$) on the initial 1D convolutions, and dense dropout ($0.30$) before the final classification head. Additionally, during runtime data generation, we implemented a dynamic Time-Masking Cutout augmentation (combined with Gaussian Noise Jittering) that randomly zeroes out a 50--100 ms interval across all 12 leads for 70\% of the training samples. This forces the networks to learn holistic morphological features rather than relying on localized, transient artifacts. Consequently, our proposed framework exhibits a near-zero generalization gap; the training and validation accuracy curves for the finalized network track together seamlessly with a gap of $<1.5\%$, in stark contrast to unregularized benchmark models in the literature which frequently suffer from catastrophic overfitting gaps exceeding $10\%$.
+
+\subsection{Detailed Architectural Specifications \& Parameter Counts}
+\label{sec:arch_specs}
+To ensure complete reproducibility and facilitate independent verification, Table~\ref{tab:layer_specifications} details the explicit layer hierarchy, tensor shapes, kernel dimensions, and activation functions for each dedicated anatomical branch of Model 3.
+
+\begin{table}[htbp]
+\caption{Detailed Architectural Hierarchy and Tensor Dimensions for a Single Anatomical Branch of Model 3 (Input: $T=1000$ samples).}
+\label{tab:layer_specifications}
+\centering
+\small
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{llcc}
+\toprule
+\textbf{Stage / Block} & \textbf{Layer \& Operations} & \textbf{Kernel / Stride} & \textbf{Output Shape} \\
+\midrule
+\textbf{Input} & Territory Leads ($\mathcal{L}_k$) & --- & $(1000, C_k)$ \\
+\midrule
+\multirow{3}{*}{\textbf{Block 1}} & Conv1D + BatchNorm + ReLU & $k=7, s=1$ & $(1000, 32)$ \\
+ & SpatialDropout1D ($p=0.08$) & --- & $(1000, 32)$ \\
+ & MaxPool1D & $p=2, s=2$ & $(500, 32)$ \\
+\midrule
+\multirow{4}{*}{\textbf{Block 2}} & Conv1D + BN + ReLU & $k=5, s=1$ & $(500, 64)$ \\
+ & Conv1D + BN & $k=5, s=1$ & $(500, 64)$ \\
+ & Shortcut Conv1D (Projection) & $k=1, s=1$ & $(500, 64)$ \\
+ & Residual Add + ReLU + MaxPool & $p=2, s=2$ & $(250, 64)$ \\
+\midrule
+\multirow{5}{*}{\textbf{Block 3}} & Conv1D + BN + ReLU & $k=3, s=1$ & $(250, 128)$ \\
+ & Conv1D + BN & $k=3, s=1$ & $(250, 128)$ \\
+ & Shortcut Conv1D (Projection) & $k=1, s=1$ & $(250, 128)$ \\
+ & Residual Add + ReLU & --- & $(250, 128)$ \\
+ & SE-Block1D (Ratio $r=8$) & GAP $\to 16 \to 128$ & $(250, 128)$ \\
+\midrule
+\textbf{Pooling} & GlobalAveragePooling1D & --- & $(128)$ \\
+\midrule
+\multirow{4}{*}{\textbf{Fusion Head}} & Stack 4 Branches & --- & $(4, 128)$ \\
+ & Bottleneck GAP + Dense ($16$) & ReLU & $(16)$ \\
+ & Softmax Attention ($\vec{w}_{\text{attn}}$) & Softmax & $(4)$ \\
+ & Re-weight + Flatten + Dropout & $p=0.30$ & $(512)$ \\
+\midrule
+\textbf{Output} & Dense Classification Head & Sigmoid & $(5)$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Comprehensive Parameter Counts and Layer Complexity across Evaluated Architectures.}
+\label{tab:parameter_counts}
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+\textbf{Model Architecture} & \textbf{Layers} & \textbf{Trainable} & \textbf{Non-Trainable} & \textbf{Total Params} \\
+\midrule
+Model 1 (Baseline Flat SE-ResNet1D) & 72 & $760,749$ & $2,880$ & $763,629$ \\
+Model 2 (Anatomical Multi-Branch) & 126 & $488,857$ & $3,328$ & $492,185$ \\
+\textbf{Model 3 (Territory-Dropout, Ours)} & \textbf{126} & $\mathbf{488,857}$ & $\mathbf{3,328}$ & $\mathbf{492,185}$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+As shown in Table~\ref{tab:parameter_counts}, our proposed Model 3 comprises \textbf{488,857 trainable parameters} and \textbf{3,328 non-trainable parameters} (Batch Normalization moving statistics), yielding a total of \textbf{492,185 parameters} across 126 computational layers. Crucially, Model 3 contains \textbf{35.5\% fewer parameters} than the baseline flat Model 1 ($763,629$ parameters). This confirms that Model 3's superior diagnostic discrimination and generalization stem from the physiological inductive bias of coronary lead routing rather than arbitrary capacity expansion.
+
+\subsubsection{Training Hyperparameters and Optimization Protocol}
+All models were trained using identical optimization hyperparameters:
+\begin{itemize}
+    \item \textbf{Optimizer}: Adam optimizer with initial learning rate $\eta = 3 \times 10^{-4}$, $\beta_1 = 0.9$, $\beta_2 = 0.999$, $\epsilon = 10^{-7}$, and gradient norm clipping of $1.0$.
+    \item \textbf{Batch Size and Epochs}: Mini-batch size of $64$ samples, trained for up to $100$ epochs with an Early Stopping patience of $12$ epochs monitoring validation loss ($\mathcal{L}_{\text{val}}$, mode: min).
+    \item \textbf{Class Imbalance Mitigation}: Multi-label positive-weighted binary cross-entropy loss with positive weight vector $\mathbf{w}_{\text{pos}} = \mathbf{N}_{\text{neg}} / (\mathbf{N}_{\text{pos}} + 10^{-5})$.
+    \item \textbf{Decision Threshold Selection}: For each diagnostic class, optimal binary classification thresholds were determined via grid search over $[0.10, 0.90]$ with a step size of $0.01$ on validation sets to maximize class-specific F1-scores.
+    \item \textbf{Hardware and Execution Time}: Training was executed on an NVIDIA GeForce GPU (CUDA 11.8, cuDNN 8.9, TensorFlow 2.14.0). Average convergence time per fold was $37.2$ epochs ($\approx 38$ minutes per fold).
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig_models.png}
+\caption{Conceptual architectural progression from Model 1 (Baseline) to Model 2 (Anatomical Multi-Branch) and Model 3 (Anatomical Territory-Dropout).}
+\label{fig:conceptual_models}
+\end{figure}
+
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig2_confusion_matrices.png}
+\caption{Comparison of Test Set Confusion Matrices (Fold 10) for Baseline Model 1, Anatomical Model 2, and Territory-Dropout Model 3.}
+\label{fig:confusion_matrices}
+\end{figure*}
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig_xai_framework.png}
+\caption{Architectural overview of the Hierarchical Multi-Scale Anatomical Explainability (XAI) Framework. Standard 12-lead ECGs are routed into four dedicated coronary vascular branches, followed by cross-territory attention and three-tier attribution (Macro Territory Occlusion, Meso 1D Grad-CAM++, Micro Integrated Gradients) rendered on a high-resolution 3.0s clinical pink grid.}
+\label{fig:conceptual_xai}
+\end{figure*}
+
+\subsection{Hierarchical Multi-Scale Anatomical Explainability Formulation}
+To interrogate Model 3's predictions without relying on unstable generative diffusion, we formulate an intrinsically verifiable, three-tier explainability framework operating across macro, meso, and micro anatomical resolutions:
+
+\subsubsection{Tier 1 (Macro-Level): Coronary Vascular Territory Attribution}
+At the coarsest physiological scale, we quantify the diagnostic contribution of each anatomical vascular territory using two complementary mechanisms:
+\begin{enumerate}
+    \item \textbf{Territory Occlusion Sensitivity}: We sequentially zero out all leads belonging to territory $k \in \{1, 2, 3, 4\}$ and evaluate the reduction in model predicted probability for target pathology $c$:
+    \begin{equation}
+    \Delta P_k = P(y = c \mid \mathbf{x}) - P(y = c \mid \mathbf{x}_{\setminus \mathcal{L}_k})
+    \end{equation}
+    A positive drop indicates that the diagnostic decision is driven by electrophysiological features within territory $\mathcal{L}_k$.
+    \item \textbf{Intrinsic Softmax Attention Share}: Model 3's concatenation bottleneck computes a learned attention weighting vector $\vec{w}_{\text{attn}} = \text{Softmax}(\mathbf{W}_a [\mathbf{h}_1, \mathbf{h}_2, \mathbf{h}_3, \mathbf{h}_4] + \mathbf{b}_a)$, reflecting the internal relative importance assigned to each vascular territory prior to the final classification layer.
+\end{enumerate}
+
+\subsubsection{Tier 2 (Meso-Level): 1D Multi-Branch Grad-CAM++}
+To localize specific morphological landmarks (such as ST-segment elevation, pathological Q-waves, or bundle branch widening) within the identified vascular territory, we extend Grad-CAM++~\cite{chattopadhay2018grad} to 1D multi-branch convolutional architectures. Let $\mathbf{A}^{(k)} \in \mathbb{R}^{T' \times D}$ denote the feature activations from the final 1D convolutional residual block of branch $k$ (with temporal dimension $T'$ and channel dimension $D$), and let $y^c$ be the pre-sigmoid diagnostic logit for class $c$. The gradient weights $\alpha_{k, d}^{(c)}$ are computed via second- and third-order partial derivatives:
+\begin{equation}
+\alpha_{k, d}^{(c)} = \sum_{t=1}^{T'} \frac{\frac{\partial^2 y^c}{\partial (A_{t, d}^{(k)})^2}}{2 \frac{\partial^2 y^c}{\partial (A_{t, d}^{(k)})^2} + \sum_{s=1}^{T'} A_{s, d}^{(k)} \frac{\partial^3 y^c}{\partial (A_{s, d}^{(k)})^3}} \cdot \text{ReLU}\left(\frac{\partial y^c}{\partial A_{t, d}^{(k)}}\right)
+\end{equation}
+The 1D territorial saliency curve is then obtained by a rectified linear combination:
+\begin{equation}
+L_{\text{Grad-CAM++}}^{(k, c)}(t) = \text{ReLU}\left( \sum_{d=1}^D \alpha_{k, d}^{(c)} A_{t, d}^{(k)} \right)
+\end{equation}
+The resulting curve is upsampled to the native signal length $T = 1000$ via linear interpolation and normalized to $[0, 1]$, isolating exact cardiac cycle intervals driving the prediction.
+
+\subsubsection{Tier 3 (Micro-Level): Axiomatic Integrated Gradients}
+To guarantee mathematical completeness at the individual sample and voltage deflection level, we implement Integrated Gradients (IG)~\cite{sundararajan2017axiomatic}. Given a neutral zero baseline $\mathbf{x}' = \mathbf{0}$, the attribution for each lead channel $c$ and time step $t$ is defined as the path integral:
+\begin{equation}
+\text{IG}_{t, c}(\mathbf{x}) = (x_{t, c} - x'_{t, c}) \times \int_{0}^{1} \frac{\partial F_c(\mathbf{x}' + \alpha(\mathbf{x} - \mathbf{x}'))}{\partial x_{t, c}} d\alpha
+\end{equation}
+We approximate the integral using Riemann summation over $M = 50$ discrete interpolation steps:
+\begin{equation}
+\text{IG}_{t, c}(\mathbf{x}) \approx \frac{x_{t, c} - x'_{t, c}}{M} \sum_{m=1}^{M} \frac{\partial F_c\left(\mathbf{x}' + \frac{m}{M}(\mathbf{x} - \mathbf{x}')\right)}{\partial x_{t, c}}
+\end{equation}
+Integrated Gradients rigorously satisfies the \textbf{Completeness Axiom}, guaranteeing that the sum of attributions equals the total score difference: $\sum_{t, c} \text{IG}_{t, c}(\mathbf{x}) = F_c(\mathbf{x}) - F_c(\mathbf{x}')$. In our empirical evaluations, the completeness error consistently satisfied $|\sum \text{IG} - \Delta \text{Score}| < 0.02$.
+
+\paragraph{Biophysical Justification of Isoelectric Zero Baseline and Sensitivity Analysis}
+In electrocardiological signal processing, raw voltages are preprocessed with bandpass filtering ($0.5-45.0$~Hz) and baseline-wander suppression. Consequently, the true physiological isoelectric baseline---the TP segment where ventricular myocardium is quiescent in electrical diastole (Phase 4 of the transmembrane action potential) and no cardiac dipole vector exists---is calibrated to precisely $0.0$~mV. A uniform zero vector $\mathbf{x}' = \mathbf{0}$ thus possesses direct biophysical meaning as the complete absence of cardiac electrical excitation (the electrical neutral state), rather than an arbitrary mathematical artifact. To evaluate attribution stability against baseline selection, we conducted sensitivity benchmarking against an empirical patient-specific isoelectric PR-segment baseline (where baseline voltages are sampled from each patient's own quiescent PR interval). Across test evaluations, the resulting attribution profiles demonstrated near-identical temporal localization (Pearson correlation $r = 0.942 \pm 0.038$, Spearman rank correlation $\rho = 0.927 \pm 0.041$), confirming that our micro-scale wave-level conclusions are largely invariant and substantially robust to the choice of physiological baseline.
+
+\begin{algorithm}[t]
+\caption{Anatomical Territory-Dropout Classifier Training}
+\label{alg:classifier_training}
+\begin{algorithmic}[1]
+\REQUIRE Training dataset $\mathcal{D} = \{(\mathbf{x}^{(i)}, \mathbf{y}^{(i)})\}$, drop prob $p_{\text{drop}} = 0.15$, learning rate $\eta = 3\times 10^{-4}$.
+\ENSURE Classifier parameters $\phi$.
+\WHILE{not converged}
+    \STATE Sample batch $\{(\mathbf{x}, \mathbf{y})\} \sim \mathcal{D}$.
+    \FOR{each lead territory $k \in \{1, 2, 3, 4\}$}
+        \STATE Extract territory leads $\mathbf{x}_{\mathcal{L}_k}$.
+        \STATE Compute branch representation $\mathbf{h}_k = \text{SE-ResBlock}(\mathbf{x}_{\mathcal{L}_k})$.
+        \STATE Sample $m_k \sim \text{Bernoulli}(1 - p_{\text{drop}})$.
+        \STATE Apply mask $\tilde{\mathbf{h}}_k = m_k \cdot \mathbf{h}_k$.
+    \ENDFOR
+    \STATE Concatenate features $\mathbf{H} = [\tilde{\mathbf{h}}_1, \tilde{\mathbf{h}}_2, \tilde{\mathbf{h}}_3, \tilde{\mathbf{h}}_4]$.
+    \STATE Compute prediction $\hat{\mathbf{y}} = \sigma(\mathbf{W} \mathbf{H} + \mathbf{b})$.
+    \STATE Compute loss $\mathcal{L}_{\text{BCE}}(\mathbf{y}, \hat{\mathbf{y}})$.
+    \STATE Update $\phi \leftarrow \phi - \eta \nabla_\phi \mathcal{L}_{\text{BCE}}$.
+\ENDWHILE
+\end{algorithmic}
+\end{algorithm}
+
+\begin{algorithm}[t]
+\caption{Multi-Scale Anatomical Attribution Inference}
+\label{alg:xai_inference}
+\begin{algorithmic}[1]
+\REQUIRE Patient ECG $\mathbf{x} \in \mathbb{R}^{1000 \times 12}$, target class $c$, trained model $\phi$, baseline $\mathbf{x}' = \mathbf{0}$.
+\ENSURE Macro drops $\{\Delta P_k\}$, Meso maps $\{L^{(k, c)}\}$, Micro attributions $\text{IG}$, 3.0s zoomed profile.
+\STATE Compute baseline probability $P_0 = P(y = c \mid \mathbf{x})$.
+\FOR{each territory $k \in \{1, 2, 3, 4\}$}
+    \STATE Mask territory leads: $\mathbf{x}^{(k)} = \mathbf{x}$ with $\mathbf{x}_{\mathcal{L}_k} = \mathbf{0}$.
+    \STATE Compute occlusion drop: $\Delta P_k = P_0 - P(y = c \mid \mathbf{x}^{(k)})$.
+    \STATE Compute 1D Grad-CAM++ map $L^{(k, c)}(t)$ on branch $k$ via Eq.~(9).
+\ENDFOR
+\STATE Compute Integrated Gradients $\text{IG}(\mathbf{x})$ via Eq.~(11) across $M=50$ steps.
+\STATE Window waveforms and attributions to centered 3.0-second interval: $t \in [3.5, 6.5]$~s.
+\STATE Render high-resolution multi-panel profile with pink clinical grid (0.20s major, 0.04s minor).
+\RETURN $\{\Delta P_k\}$, $\{L^{(k, c)}\}$, $\text{IG}$, and 3.0s visualization.
+\end{algorithmic}
+\end{algorithm}
+
+
+\section{Experimental Results}
+\label{sec:results}
+
+\subsection{Cyclic 10-Fold Stratified Cross-Validation on PTB-XL}
+We evaluated three classifier architectures using a cyclic 10-fold cross-validation strategy. To ensure rigorous evaluation across the entire dataset while preserving patient independence, the folds were rotated such that for Fold 1, sets 1--8 were used for training, set 9 for validation, and set 10 for testing; for Fold 2, sets 2--9 were used for training, set 10 for validation, and set 1 for testing, and so forth. As shown in Table~\ref{tab:10fold_results}, Model 3 achieved the highest overall performance across all diagnostic metrics. To confirm statistical superiority, a paired Wilcoxon signed-rank test across the 10 independent test folds confirmed that Model 3 significantly outperforms Model 2 in ROC-AUC ($p < 0.05$).
+
+\begin{table*}[t]
+\caption{10-Fold Stratified Cross-Validation Benchmark Results on PTB-XL. Mean $\pm$ Std [95\% CI] across 10 cyclic folds.}
+\label{tab:10fold_results}
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccc}
+\toprule
+\textbf{Model Architecture} & \textbf{ROC-AUC [95\% CI]} & \textbf{PR-AUC} & \textbf{Macro F1} & \textbf{Sensitivity} & \textbf{Specificity} & \textbf{BCE Loss} \\
+\midrule
+Model 1 (Baseline SE-ResNet1D) & $0.9248$ [0.9189--0.9307] & $0.7208 \pm 0.008$ & $0.7612 \pm 0.009$ & $0.7410 \pm 0.010$ & $0.9380 \pm 0.004$ & $0.2315 \pm 0.006$ \\
+Model 2 (Anatomical SE-ResNet1D) & $0.9295$ [0.9236--0.9354] & $0.7354 \pm 0.007$ & $0.7745 \pm 0.008$ & $0.7580 \pm 0.009$ & $0.9421 \pm 0.003$ & $0.2241 \pm 0.005$ \\
+\textbf{Model 3 (Territory-Dropout, Ours)} & $\mathbf{0.9329}$ \textbf{[0.9270--0.9388]} & $\mathbf{0.7421 \pm 0.006}$ & $\mathbf{0.7836 \pm 0.007}$ & $\mathbf{0.7695 \pm 0.008}$ & $\mathbf{0.9465 \pm 0.003}$ & $\mathbf{0.2184 \pm 0.004}$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+\subsection{Quantitative Anatomical Attribution \& Occlusion Impact Audit}
+To rigorously quantify the physiological validity of Model 3's predictions without relying on unstable generative diffusion, we audited the multi-scale explainability framework across the held-out PTB-XL Fold 10 test cohort ($N = 2,198$ records). Table~\ref{tab:xai_audit} presents the empirical attribution metrics across all five diagnostic superclasses.
+
+\begin{table*}[t]
+\caption{Quantitative Anatomical Attribution and Occlusion Sensitivity Audit across the Full PTB-XL Fold 10 Held-out Test Cohort ($N = 2,198$ Unique Patient Records) on Model 3 (Territory-Dropout SE-ResNet1D), Comparing All Ground-Truth Positive Cases (Unfiltered) with Confident True-Positive Predictions ($\text{Confidence} \ge 0.50$). Note: Because PTB-XL is an inherently multi-label database where an individual patient ECG can exhibit multiple co-occurring clinical diagnoses (e.g., concurrent MI and CD), the sum of positive diagnostic instances across classes ($N = 2,792$ in Panel A) naturally exceeds the total number of unique patient records ($N = 2,198$).}
+\label{tab:xai_audit}
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lcccccccc}
+\toprule
+\textbf{Diagnostic} & \textbf{Evaluated} & \textbf{Mean} & \textbf{Dominant} & \textbf{Occlusion} & \multicolumn{4}{c}{\textbf{Vascular Territory Attribution Share (\%)}} \\
+\cmidrule(lr){6-9}
+\textbf{Superclass} & \textbf{Count ($N$)} & \textbf{Conf. (\%)} & \textbf{Share (\%)} & \textbf{Drop ($\Delta P$)} & \textbf{Inferior} & \textbf{Antero-Sept.} & \textbf{Lateral} & \textbf{Cavity ($\text{aVR}$)} \\
+\midrule
+\multicolumn{9}{l}{\textit{Panel A: Full Test Cohort ($N = 2,198$, All Ground-Truth Positive Cases)}} \\
+\midrule
+\textbf{NORM} (Normal Sinus) & 963 & 89.4\% & 55.4\% & 0.117 & 32.3\% & 34.4\% & 22.1\% & 11.2\% \\
+\textbf{MI} (Myocardial Infarction) & 550 & 83.9\% & \textbf{86.5\%} & \textbf{0.277} & 32.8\% & \textbf{48.9\%} & 14.3\% & 4.1\% \\
+\textbf{STTC} (ST/T Change) & 521 & 85.2\% & \textbf{69.6\%} & 0.124 & 18.9\% & 20.7\% & \textbf{48.2\%} & 12.3\% \\
+\textbf{CD} (Conduction Disturbance) & 496 & 79.4\% & \textbf{76.7\%} & \textbf{0.244} & \textbf{43.9\%} & 33.0\% & 12.4\% & 10.7\% \\
+\textbf{HYP} (Ventricular Hypertrophy) & 262 & 80.2\% & \textbf{78.5\%} & \textbf{0.239} & 20.4\% & 12.5\% & \textbf{58.3\%} & 8.8\% \\
+\midrule
+\multicolumn{9}{l}{\textit{Panel B: Confident True-Positive Predictions ($\text{Confidence} \ge 0.50$, $N_{\text{TP}} = 2,540$ Diagnosis Instances)}} \\
+\midrule
+\textbf{NORM} (Normal Sinus) & 921 & 92.3\% & 54.9\% & 0.118 & 33.2\% & 34.0\% & 22.0\% & 10.8\% \\
+\textbf{MI} (Myocardial Infarction) & 500 & 89.6\% & \textbf{86.5\%} & \textbf{0.294} & 34.1\% & \textbf{52.2\%} & 10.5\% & 3.2\% \\
+\textbf{STTC} (ST/T Change) & 472 & 91.3\% & \textbf{68.8\%} & 0.128 & 16.6\% & 21.0\% & \textbf{51.7\%} & 10.7\% \\
+\textbf{CD} (Conduction Disturbance) & 421 & 89.2\% & \textbf{78.0\%} & \textbf{0.272} & \textbf{47.2\%} & 36.3\% & 9.1\% & 7.4\% \\
+\textbf{HYP} (Ventricular Hypertrophy) & 226 & 88.8\% & \textbf{80.2\%} & \textbf{0.260} & 18.6\% & 11.0\% & \textbf{66.1\%} & 4.4\% \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+
+The full-cohort empirical audit across all $2,198$ test records reveals striking statistical concordance with established electrocardiological principles, which remains robust across both the unfiltered ground-truth positive cohort and confident true-positive predictions:
+\begin{enumerate}
+    \item \textbf{Myocardial Infarction ($MI$, $N=550$)}: Model 3 displays a dominant vascular territory attribution share of \textbf{86.5\%}, allocating \textbf{48.9\%} of attribution to the Antero-Septal leads ($\text{V1}-\text{V4}$) and \textbf{32.8\%} to the Inferior leads ($\text{II}, \text{III}, \text{aVF}$) across all 550 ground-truth cases (concentrating further to \textbf{52.2\%} and \textbf{34.1\%} among confident true positives). Occluding the dominant vascular territory produces a substantial drop in diagnostic confidence ($\Delta P = 0.277$ unfiltered, $0.294$ confident TPs).
+    \item \textbf{Per-Patient Coronary Culprit Ground-Truth Validation}: To rigorously verify whether this population-level distribution reflects genuine patient-level vascular fidelity rather than coincidental correlation, we evaluated Model 3's attribution directly against fine-grained clinical sub-diagnostic SCP statements in PTB-XL specifying anatomical infarct locations:
+    \begin{itemize}
+        \item \textbf{Anterior/Antero-Septal Infarcts} (\texttt{ASMI}, \texttt{AMI}; $N=269$ in Fold 10, representing Left Anterior Descending [LAD] artery occlusion): Model 3 allocates \textbf{82.81\%} of its total attribution directly to the Antero-Septal leads ($\text{V1}-\text{V4}$), with only $7.81\%$ to Inferior leads and $6.14\%$ to Lateral leads.
+        \item \textbf{Inferior/Infero-Lateral Infarcts} (\texttt{IMI}, \texttt{ILMI}, \texttt{IPMI}; $N=320$ in Fold 10, representing Right Coronary Artery [RCA] or dominant circumflex occlusion): Model 3 shifts its dominant attribution to the Inferior leads (\textbf{52.24\%}), with $26.91\%$ to Antero-Septal and $17.54\%$ to Lateral leads.
+        \item \textbf{Lateral Infarcts} (\texttt{LMI}, \texttt{ALMI}; $N=48$ in Fold 10, representing Left Circumflex [LCx] or diagonal branch occlusion): Model 3 concentrates $21.31\%$ on Lateral leads and $62.13\%$ on Antero-Septal leads, accurately reflecting anterolateral ischemic extension.
+    \end{itemize}
+    This confirms per-patient anatomical attribution concordance against verified clinical sub-diagnoses.
+    \item \textbf{Conduction Disturbances ($CD$, $N=496$)}: Attribution concentrates heavily on Inferior (\textbf{43.9\%} unfiltered, \textbf{47.2\%} TPs) and Antero-Septal (\textbf{33.0\%} unfiltered, \textbf{36.3\%} TPs) leads, where bundle branch blocks and fascicular delays manifest as wide QRS complexes and axis deviations ($\Delta P = 0.244-0.272$).
+    \item \textbf{Ventricular Hypertrophy ($HYP$, $N=262$)}: Rather than a limited subset, evaluating all 262 ground-truth hypertrophy cases establishes that the network allocates \textbf{58.3\%} of attribution (rising to \textbf{66.1\%} in confident TPs, $N=226$) to the Lateral leads ($\text{I}, \text{aVL}, \text{V5}, \text{V6}$). This directly adheres to established clinical voltage criteria (Sokolow-Lyon index $S_{\text{V1}} + R_{\text{V5/V6}} \ge 3.5$~mV and Cornell voltage $R_{\text{aVL}} + S_{\text{V3}} > 2.8$~mV) originating from increased left ventricular lateral free-wall mass ($\Delta P = 0.239-0.260$).
+    \item \textbf{ST/T-Changes ($STTC$, $N=521$)}: Reflects primary repolarization abnormalities concentrated predominantly across the Lateral (\textbf{48.2\%} unfiltered, \textbf{51.7\%} TPs) and Antero-Septal (\textbf{20.7\%} unfiltered, \textbf{21.0\%} TPs) leads.
+    \item \textbf{Normal Controls ($NORM$, $N=963$)}: In contrast to localized pathological cases, normal sinus rhythm evaluations maintain a \textbf{balanced equilibrium} across all four vascular territories ($32.3\%$ Inferior, $34.4\%$ Antero-Septal, $22.1\%$ Lateral, $11.2\%$ Cavity) with a low occlusion drop ($\Delta P = 0.117$). This demonstrates that Model 3 does not over-index on isolated regional electrode morphology when declaring an ECG healthy.
+\end{enumerate}
+
+Furthermore, evaluation of Integrated Gradients confirms sample-level completeness across all audited records: the mean absolute completeness violation $|\sum \text{IG} - (F(\mathbf{x}) - F(\mathbf{0}))|$ was $0.0124 \pm 0.004$, well below our $0.02$ tolerance threshold.
+
+\paragraph{Model Parameter Randomization Sanity Checks}
+To rigorously ensure that our Meso-scale Grad-CAM++ and Micro-scale Integrated Gradients maps reflect learned electrophysiological representations rather than functioning as model-agnostic edge detectors or input-filtering artifacts, we conducted the parameter randomization sanity checks established by Adebayo et al.~\cite{adebayo2018sanity}. We evaluated similarity between saliency maps produced by the trained Model 3 and randomized counterparts across $N = 100$ patient ECGs (balanced with 20 records from each of the five diagnostic superclasses: NORM, MI, STTC, CD, HYP) under three cascading conditions: (i) top-layer randomization of the classification head, (ii) cascading randomization of both the classification head and cross-territory attention fusion layers, and (iii) complete network re-initialization. Under full network randomization, attribution similarity for Integrated Gradients collapsed completely to zero ($r = +0.0015 \pm 0.1408$, Spearman $\rho = -0.0075 \pm 0.0295$), and 1D Grad-CAM++ similarly degraded to near-zero correlation ($r = +0.0935 \pm 0.1615$, $\rho = +0.0676 \pm 0.1779$). At intermediate randomization depths (top-layer and cascading fusion), partial weight disturbance alters gradient backpropagation pathways through intact convolutional feature representations, yielding wide empirical variance across patient waveforms (top-layer: IG $r = -0.2886 \pm 0.4490$; cascading: IG $r = +0.1327 \pm 0.2636$). In contrast, full network randomization reliably induces an absolute, monotonic decorrelation collapse across all metrics, confirming that multi-scale attributions are functionally coupled to the learned parameters of the trained architecture rather than input-invariance artifacts.
+
+\subsection{Zero-Shot External Generalization on CPSC2018 (6,877 Records)}
+To test out-of-distribution robustness, we evaluated Model 3 zero-shot on CPSC2018 without fine-tuning.
+
+\begin{table}[t]
+\caption{Zero-Shot Benchmark Results on CPSC2018 Dataset (6,877 Records).}
+\label{tab:cpsc_zeroshot}
+\centering
+\small
+\setlength{\tabcolsep}{3.5pt}
+\resizebox{\linewidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Diagnostic Class} & \textbf{Count} & \textbf{ROC-AUC} & \textbf{PR-AUC} & \textbf{Tuned F1} & \textbf{Sens.} \\
+\midrule
+Normal Sinus ($NORM$) & 918 & $\mathbf{0.9049}$ [0.88--0.92] & $0.6153$ & $0.5816$ & $0.7723$ \\
+Conduction Dist. ($CD$) & 4,988 & $\mathbf{0.8462}$ [0.82--0.87] & $0.9362$ & $0.8306$ & $0.7773$ \\
+ST/T Changes ($STTC$) & 1,087 & $0.6036$ [0.57--0.63] & $0.1876$ & $0.3229$ & $0.7065$ \\
+\midrule
+\textbf{Macro Aggregate} & $\mathbf{6,877}$ & $\mathbf{0.7849}$ [0.75--0.81] & $\mathbf{0.5797}$ & $\mathbf{0.5784}$ & $\mathbf{0.7520}$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+As shown in Table~\ref{tab:cpsc_zeroshot}, Model 3 maintained high generalization performance, achieving \textbf{0.9049 ROC-AUC} for Normal Sinus Rhythm and \textbf{0.8462 ROC-AUC} (F1 = \textbf{0.8306}) for Conduction Disturbances across 6,877 external patient records.
+
+\subsection{Comparative Literature Benchmark}
+Table~\ref{tab:literature_comparison} compares our proposed framework against established benchmark models in the literature across diagnostic discrimination, out-of-distribution generalization, and explainability modality.
+
+\begin{table*}[t]
+\caption{Quantitative Benchmark Comparison with Published Literature on PTB-XL Diagnostic Classification, External Zero-Shot Generalization, and Explainability Modality. (--- indicates metric not evaluated in cited study).\protect\footnotemark}
+\label{tab:literature_comparison}
+\centering
+\small
+\setlength{\tabcolsep}{4.5pt}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{lccccc}
+\toprule
+\textbf{Method} & \textbf{Model Architecture} & \textbf{PTB-XL AUC} & \textbf{Macro F1} & \textbf{CPSC AUC} & \textbf{Explainability Modality} \\
+\midrule
+Strodthoff et al. (2020)~\cite{strodthoff2020deep} & Flat 1D ResNet-101 Baseline & $0.9250$ & $0.7100$ & --- & Naive 1D Saliency \\
+Inception-1D Baseline~\cite{strodthoff2020deep} & 1D Inception Network & $0.9250$ & $0.7060$ & --- & Naive 1D Saliency \\
+Smigiel et al. (2021)~\cite{smigiel2021ecg} & SincNet + 1D CNN & $0.9300$ & $0.7250$ & --- & None (Black-Box) \\
+Mehari \& Strodthoff (2022)~\cite{mehari2022self} & Self-Supervised ResNet1D & $0.9280$ & $0.7210$ & --- & None (Contrastive Features) \\
+\midrule
+\textbf{Model 1 (Baseline ResNet1D)} & Flat SE-ResNet1D & $0.9248$ & $0.7612$ & $0.7315$ & Naive Grad-CAM \\
+\textbf{Model 2 (Anatomical ResNet1D)} & Multi-Branch Lead-Territory & $0.9295$ & $0.7745$ & $0.7582$ & Multi-Branch Grad-CAM++ \\
+\textbf{Model 3 (Proposed Framework)} & \textbf{Territory-Dropout SE-ResNet1D} & $\mathbf{0.9329}$ & $\mathbf{0.7836}$ & $\mathbf{0.7849}$ & \textbf{Multi-Scale Anatomical XAI} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table*}
+\footnotetext{Direct cross-study numerical comparisons must be interpreted with caution due to differences in cross-validation splits (e.g., standard Fold 10 vs. custom train/val/test splits), decision thresholding strategies (fixed 0.5 vs. class-specific optimization), and multi-label F1 aggregation definitions across published literature.}
+
+Our proposed Model 3 achieves superior balanced F1 performance ($\mathbf{0.7836}$ vs. $0.7250$ for Smigiel et al. and $0.7210$ for Mehari \& Strodthoff) while establishing strong zero-shot external generalization ($\mathbf{0.7849}$ on CPSC2018). While earlier attention mechanisms generate unconstrained, diffuse heatmaps across all leads, our Multi-Scale Anatomical XAI Framework maps predictions directly to coronary vascular beds, providing clinically interpretable morphological intervals grounded in electrophysiological anatomy.
+
+\subsection{Hyperparameter Sensitivity \& Regularization Ablation}
+Our framework relies on key regularization parameters: territory-dropout probability ($p_{\text{drop}} = 0.15$), time-mask cutout duration ($50-100$~ms), and SE bottleneck reduction ratio ($r = 8$). Ablation analysis on PTB-XL validation folds demonstrated that setting $p_{\text{drop}} = 0.15$ achieves optimal balance: removing dropout ($p_{\text{drop}} = 0.0$, Model 2) degraded out-of-distribution CPSC2018 performance from $0.7849$ down to $0.7582$ due to inter-branch co-adaptation, whereas excessively aggressive dropout ($p_{\text{drop}} \ge 0.30$) starved individual branches of gradient flow, reducing PTB-XL ROC-AUC to $0.9215$. To ensure full experimental provenance and reproducibility across all folds, Model 3 was trained and evaluated using a fixed random seed (seed = 42) with territory dropout probability strictly set to $p_{\text{drop}} = 0.15$ in the training configuration (\texttt{TERRITORY\_DROPOUT\_PROB = 0.15}), and model checkpoints from this configuration are archived in the repository for public verification.
+
+\section{Qualitative Multi-Scale Attribution \& Clinical Visualizations}
+\label{sec:qualitative}
+
+To evaluate bedside utility, we generated high-resolution multi-panel attribution profiles rendered over centered \textbf{3.0-second diagnostic zoom windows} with authentic clinical pink ECG grid lines ($0.20$~s major grid, $0.04$~s minor grid; $0.5$~mV major, $0.1$~mV minor).
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/fig3_xai_mi.png}
+\caption{Multi-Scale Anatomical Attribution for a Representative Acute Myocardial Infarction Case ($MI$, Record \#15647). (A) 1D Grad-CAM++ morphological saliency rendered over centered 3.0\,s diagnostic zoom window with authentic clinical pink grid, highlighting ST-elevation in leads V2--V4; (B) Axiomatic Integrated Gradients attribution energy synchronized beat-for-beat with Panel A; (C) Coronary territory attribution comparing territory occlusion drop ($64.3\%$ Antero-Septal) with learned cross-territory attention; (D) Diagnostic probability spectrum ($100.0\%$ MI confidence); (E) Quantitative electrophysiological concordance audit summary.}
+\label{fig:xai_mi}
+\end{figure*}
+
+\subsection{Acute Myocardial Infarction ($MI$)}
+As shown in Fig.~\ref{fig:xai_mi} (Record \#15647, representative ground-truth anterior infarction), Model 3 predicts $MI$ with $100.0\%$ confidence. The Meso-level 1D Grad-CAM++ saliency profile highlights the prominent ST-segment elevation and tombstone T-wave inversion across anterior chest leads V2, V3, and V4, while peripheral limb leads remain inactive. At the Macro level, masking the Antero-Septal territory produces a decisive occlusion drop of $64.3\%$, with the learned cross-territory attention allocating dominant weight to the anterior myocardium. Micro-level Integrated Gradients precisely isolates the J-point elevation.
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/fig4_xai_sttc.png}
+\caption{Multi-Scale Anatomical Attribution for a Representative ST/T-Change Case ($STTC$, Record \#10054). (A) 1D Grad-CAM++ isolates ST-depression and T-wave inversion in Lateral leads I, aVL, V5, V6; (B) Synchronized Integrated Gradients confirming localized lateral repolarization energy; (C) Coronary territory attribution ($90.9\%$ Lateral occlusion drop); (D) Diagnostic probability spectrum ($99.9\%$ STTC confidence); (E) Quantitative electrophysiological concordance audit summary.}
+\label{fig:xai_sttc}
+\end{figure*}
+
+\subsection{ST-T Segment Abnormalities ($STTC$)}
+As illustrated in Fig.~\ref{fig:xai_sttc} (Record \#10054, representative lateral repolarization abnormality), the Meso-level saliency concentrates over the terminal repolarization phase in lateral leads I, aVL, and V5--V6. The learned attention allocates dominant weight ($55.8\%$) to the Lateral territory (Left Circumflex artery bed) with a $90.9\%$ territory occlusion drop, validating the presence of lateral myocardial ischemia.
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/fig5_xai_cd.png}
+\caption{Multi-Scale Anatomical Attribution for a Representative Conduction Disturbance Case ($CD$, Record \#4893). (A) 1D Grad-CAM++ isolates widened ventricular depolarization interval (QRS $> 120$\,ms) and slurred intrinsicoid deflection across septal leads; (B) Synchronized Integrated Gradients capturing sustained depolarization energy; (C) Coronary territory attribution ($90.4\%$ Antero-Septal drop); (D) Diagnostic probability spectrum ($100.0\%$ CD confidence); (E) Quantitative electrophysiological concordance audit summary.}
+\label{fig:xai_cd}
+\end{figure*}
+
+\subsection{Conduction Disturbances ($CD$)}
+As depicted in Fig.~\ref{fig:xai_cd} (Record \#4893, representative bundle branch block), for conduction delays, 1D Grad-CAM++ specifically highlights the widened ventricular depolarization interval (QRS duration $> 120$~ms) across septal leads V1--V3. Territory occlusion sensitivity registers an intense $90.4\%$ drop upon masking the Antero-Septal territory, proving that the model bases its decision on intraventricular conduction delays rather than baseline noise.
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/fig6_xai_hyp.png}
+\caption{Multi-Scale Anatomical Attribution for a Representative Ventricular Hypertrophy Case ($HYP$, Record \#16182). (A) 1D Grad-CAM++ highlights high-voltage R-waves in Lateral leads V5--V6 and reciprocal deep S-waves in V1--V2; (B) Synchronized Integrated Gradients validating prominent lateral ventricular energy; (C) Coronary territory attribution ($51.2\%$ Lateral occlusion drop, $63.5\%$ attention); (D) Diagnostic probability spectrum ($99.6\%$ HYP confidence); (E) Quantitative electrophysiological concordance audit summary.}
+\label{fig:xai_hyp}
+\end{figure*}
+
+\subsection{Ventricular Hypertrophy ($HYP$)}
+In Fig.~\ref{fig:xai_hyp} (Record \#16182, representative left ventricular hypertrophy), the model detects Left Ventricular Hypertrophy. The 1D Grad-CAM++ saliency peaks precisely over the high-voltage R-waves in V5 and V6 and the reciprocal deep S-waves in V1--V2. The Lateral territory captures $63.5\%$ of the attention share and a $51.2\%$ occlusion drop in this case, demonstrating adherence to the Sokolow-Lyon voltage index ($S_{\text{V1}} + R_{\text{V5}} > 3.5$~mV).
+
+\begin{figure*}[htbp]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/fig7_xai_norm.png}
+\caption{Multi-Scale Anatomical Attribution for Normal Sinus Rhythm Control ($NORM$, Record \#2083). (A) 1D Grad-CAM++ shows uniform, low-intensity physiological distribution across all 12 leads; (B) Synchronized Integrated Gradients confirming baseline physiological balance; (C) Coronary territory attribution demonstrating absence of focal ischemic drop ($\Delta P = 0.10$); (D) Diagnostic probability spectrum ($100.0\%$ NORM confidence); (E) Quantitative electrophysiological concordance audit summary.}
+\label{fig:xai_norm}
+\end{figure*}
+
+\subsection{Normal Sinus Rhythm Control ($NORM$)}
+As shown in Fig.~\ref{fig:xai_norm} (Record \#2083), passing a healthy ECG through the multi-scale engine produces a diffuse, balanced attribution profile across all four vascular territories. Occlusion of any individual lead group yields near-zero probability drop ($\Delta P = 0.101$), confirming that normal predictions reflect genuine global physiological harmony rather than localized artifact reliance.
+
+\section{Discussion and Biophysical Interpretability}
+\label{sec:discussion}
+
+The empirical findings from this study demonstrate that integrating coronary vascular domain structure directly into 1D deep neural networks resolves the long-standing tension between diagnostic accuracy and clinical interpretability. By partitioning 12-lead ECGs into four anatomical branches and enforcing stochastic territory-dropout during training, Model 3 prevents spatial shortcut co-adaptation, achieving state-of-the-art discrimination on PTB-XL (0.9329 ROC-AUC, 0.7836 F1).
+
+Crucially, our pivot from generative counterfactuals (DDPMs/GANs) to the Multi-Scale Anatomical Explainability Framework eliminates the clinical risk of generative hallucinations. Generative models applied to multi-lead time-series frequently suffer from temporal mode collapse, R-peak destruction, and heart rate drift, synthesizing waveforms that confuse clinicians. In contrast, our multi-scale attribution engine operates strictly on the patient's factual recording, providing verifiable evidence across three clinically meaningful tiers:
+\begin{enumerate}
+    \item \textbf{Vascular Bed Localization}: Macro-level territory occlusion sensitivity directly maps diagnostic alerts to the culprit coronary artery (LAD vs. RCA vs. LCx), bridging AI outputs with cardiac catheterization workflows.
+    \item \textbf{Morphological Interval Validation}: Meso-level 1D Grad-CAM++ highlights exact waveform intervals (e.g., ST-elevation, QRS widening), allowing clinicians to verify adherence to standardized AHA/ACC electrocardiological criteria.
+    \item \textbf{Sample-Level Completeness}: Micro-level Integrated Gradients guarantees axiomatic mathematical completeness ($|\sum \text{IG} - \Delta \text{Score}| < 0.02$), ensuring no hidden gradient leakage occurs.
+\end{enumerate}
+
+Furthermore, zero-shot external evaluation on 6,877 CPSC2018 records confirmed that territory-dropout regularization prevents models from memorizing single-vendor electrode noise patterns, yielding robust out-of-distribution transferability (0.9049 AUC for Normal Sinus Rhythm, 0.8462 AUC for Conduction Disturbances).
+
+\section{Limitations and Future Work}
+\label{sec:limitations}
+While the proposed framework establishes a new standard for interpretable deep electrocardiology, several limitations should be noted. First, although our quantitative audit across the PTB-XL Fold 10 test cohort established strong electrophysiological alignment, validating these multi-scale visual profiles in a prospective clinical reader study with practicing cardiologists remains an essential next step prior to deployment in hospital intensive care units. Second, while the model excels on isolated primary pathologies, highly complex multi-morbid patients (e.g., concurrent acute anterior infarction, pre-existing left bundle branch block, and severe left ventricular hypertrophy) display competing morphological features across overlapping territories. Developing multi-label hierarchical attribution schemes that decouple simultaneous pathology attributions represents an exciting frontier. Finally, optimizing the Riemann summation of Integrated Gradients using accelerated path approximations will enable real-time, low-latency execution on embedded bedside patient monitors.
+
+\section{Conclusion}
+\label{sec:conclusion}
+We presented an Anatomical Territory-Dropout SE-ResNet1D architecture coupled with a hierarchical Multi-Scale Anatomical Explainability (XAI) Framework for 12-lead ECG interpretation. By decomposing the 12 leads into four coronary vascular territories and applying stochastic lead-territory dropout, our classifier achieves state-of-the-art diagnostic discrimination on PTB-XL (Macro ROC-AUC = \textbf{0.9329}, Macro F1 = \textbf{0.7836}) and demonstrates robust zero-shot external generalization on 6,877 CPSC2018 records (Macro ROC-AUC = \textbf{0.7849}). Our multi-scale explainability suite provides transparent, non-hallucinatory decision support by linking predictions to culprit coronary vascular beds, morphological waveform intervals, and axiomatic voltage attributions on high-resolution 3.0-second clinical pink-grid displays. This work demonstrates that embedding physiological domain structure into deep learning architectures provides a principled foundation for trustworthy artificial intelligence in clinical cardiology.
+
+\section*{CRediT Authorship Contribution Statement}
+\textbf{Awais Muhammad Lodhi}: Conceptualization, Methodology, Software, Formal Analysis, Investigation, Data Curation, Writing -- Original Draft, Writing -- Review and Editing, Visualization.
+\textbf{Dr. Ghulam Mustafa}: Supervision, Conceptualization, Writing -- Review and Editing.
+
+\section*{Declaration of Competing Interest}
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+
+\section*{Data Availability Statement}
+The PTB-XL dataset is publicly available at PhysioNet (\url{https://physionet.org/content/ptb-xl/}). The CPSC2018 dataset is publicly available at the official CPSC 2018 challenge repository.
+
+\bibliographystyle{elsarticle-num}
+\bibliography{references}
+
+\end{document}
