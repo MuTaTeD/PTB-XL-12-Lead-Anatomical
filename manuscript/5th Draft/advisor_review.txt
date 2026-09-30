@@ -1,0 +1,58 @@
+My assessment: major revision. The paper presents a promising compact ECG classifier, but its current evidence does not establish state-of-the-art performance or clinically validated explanations. The strongest contribution is the combination of anatomical grouping, territory dropout, and an organized attribution display.
+I reviewed the manuscript and checked relevant original research and benchmark sources. This assessment evaluates the reported evidence; it does not independently reproduce the experiments.
+1.	The main SOTA comparison contains a task mismatch.
+Table 7 reports 0.925 AUC for both the published ResNet and Inception baselines. However, the original authors’ repository assigns those values to the all-statements task, whereas this manuscript predicts five diagnostic superclasses.
+The relevant published superclass results are:
+Model	Five-superclass macro AUC	Evaluation
+ResNet1D-Wang	0.930	Standard held-out Fold 10
+XResNet1D101	0.928	Standard held-out Fold 10
+Inception1D	0.921	Standard held-out Fold 10
+Proposed model	0.9329	Mean across ten cyclic test folds
+These benchmark values and the standard split are documented in the original repository. GitHub (https://github.com/helme/ecg_ptbxl_benchmarking)
+The apparent advantage over the strongest baseline listed above is only 0.0029 AUC, and even that difference cannot establish superiority because the evaluation protocols differ. Table 7 needs rebuilding with matching tasks, dataset versions, splits, and F1 definitions. Its cautionary footnote does not resolve this mismatch.
+2.	The closest recent methods are missing from the novelty discussion.
+Relevant technique	Why it matters to this paper
+Leadwise clustering multi-branch network, 2024	Already combines medical knowledge, lead grouping, and multiple branches. Anatomical decomposition cannot be presented as broadly new without comparison.
+TolerantECG, 2025	Explicitly evaluates missing leads, noise, and their combination—directly relevant to the proposed robustness claim.
+ACL-ECG, 2026	Incorporates anatomical relationships and physiology-aware augmentation into contrastive learning, directly overlapping the paper’s motivation.
+ECGFounder-PT, 2025 preprint	Investigates modern pretraining and stochastic-depth regularization, relevant to the claim that structured dropout provides a distinctive advance.
+3.	These approaches are documented in their original publications. ScienceDirect (https://www.sciencedirect.com/science/article/pii/S1350453324000973)
+4.	They are necessary comparators, not automatically superior models. For example, TolerantECG reports 0.926 superclass AUC on its original-signal evaluation, but its training and robustness protocol differs. ECGFounder-PT reports other label granularities, so its headline AUCs should not be compared directly with this paper’s five-class result. arxiv.org (https://arxiv.org/html/2507.09887v1)
+5.	The experiments do not isolate whether anatomy causes the improvement.
+Model 3 improves over Model 2 by 0.0034 AUC, supporting a possible benefit from territory dropout. However, both already use anatomical grouping.
+The essential missing comparison is random lead groups of the same sizes, with identical branches and dropout. Also needed are ordinary lead dropout, generic branch dropout, and a flat model matched for parameter count.
+Without these controls, the gain could reflect regularization or architectural changes rather than the proposed anatomical organization. Having fewer parameters than Model 1 does not prove that anatomy explains the improvement.
+6.	The statistical evidence is too limited for a superiority claim.
+Section 4.1 calls the ten test folds independent, but their fitted models share substantial training data. A Wilcoxon test across these results therefore needs a dependence caveat.
+Report the ten paired results, exact p-value, confidence interval for the performance difference, and repeated training seeds. Seed 42 alone cannot establish training stability. Add a standard Fold 10 comparison with patient-level paired bootstrap intervals, keeping all tuning within training/validation data.
+7.	External generalization is uneven, and the label mapping needs verification.
+Table 6 reports:
+External class	AUC	F1
+NORM	0.9049	0.5816
+CD	0.8462	0.8306
+STTC	0.6036	0.3229
+The weak STTC result materially limits the claim of robust external transfer. Moreover, this evaluation covers three classes, leaving MI and HYP externally unvalidated.
+Publish the complete SNOMED-to-superclass mapping, particularly how 4,988 records become CD-positive. The manuscript does not provide enough information to verify that target-label meanings match PTB-XL.
+Explain “Tuned F1”: if thresholds were selected using CPSC labels, that F1 is not a fully untouched zero-shot evaluation. This is an ambiguity requiring clarification, not evidence that leakage occurred.
+8.	The anatomical interpretation exceeds the available ground truth.
+The description of four “mutually orthogonal coronary vascular beds” is inaccurate. These are useful lead groups, but not independent coronary compartments; aVR is not a separate coronary vascular bed.
+More seriously, SCP infarct-location labels do not establish angiographically verified culprit arteries. Inferior infarction can involve RCA or LCx depending on coronary anatomy. ahajournals.org
+Replace “coronary culprit ground-truth validation” with agreement with ECG-derived infarct-location annotations. Claims about acute infarction, arterial occlusion, and catheterization decisions require additional clinical evidence.
+The lateral subgroup also needs honest treatment: 21.31% lateral versus 62.13% antero-septal attribution is not straightforward evidence of successful lateral localization. Separate LMI from ALMI and report predefined patient-level localization accuracy.
+9.	The XAI checks are useful, but do not establish clinical faithfulness.
+The manuscript deserves credit for including parameter-randomization checks and baseline sensitivity analysis. However:
+o	Integrated Gradients completeness checks whether attributions account for a model-score difference; it does not establish correct clinical reasoning. proceedings.mlr.press
+o	A single shared territory-attention vector is not automatically a class-specific explanation.
+o	Zeroing input leads during explanation differs from dropping branch features during training.
+o	Territory-average attribution cannot demonstrate precise ST-segment, J-point, or QRS localization.
+o	Grouped explanations can also be produced by aggregating attributions from a flat model.
+Compare the same XAI methods across flat and anatomical models, using clinician-marked waveform regions, perturbation faithfulness, and failure cases. The current comparison with generative counterfactuals is largely conceptual; it does not demonstrate empirical superiority over them.
+10.	There are concrete figure and implementation inconsistencies.
+Figure 3, page 9: the caption claims three models on Fold 10, but the figure contains only two model rows, and the upper row is labelled Fold 8. The displayed totals also differ: the upper NORM matrix sums to 2,176, while the lower sums to 2,198. This must be corrected before the comparison is interpretable.
+Figure 5, page 16: anterior territory occlusion is larger, but the attention bars favor inferior leads—52.3% inferior versus 40.0% antero-septal. Section 5.1 nevertheless describes attention as anterior-dominant. Report this disagreement rather than claiming concordance.
+Table 2 includes attention fusion, while Algorithm 1 omits it; Figure 2 also depicts a different pooling/SE sequence. Provide one definitive architecture and executable configuration.
+11.	The robustness and deployment claims need direct tests.
+Cross-dataset transfer alone does not prove elimination of shortcuts or vendor-noise dependence. Test missing territories, individual missing leads, baseline wander, electrode-motion noise, and lead swaps across controlled severity levels.
+Report calibration and explanation latency as well. Near-100% sigmoid outputs should not be presented as reliable clinical confidence without calibration evidence.
+The most defensible revision is to position this as a compact, anatomically grouped classifier with preliminary explanation validation. Before resubmission, prioritize correcting Table 7 and Figure 3, adding matched anatomical-versus-random grouping controls, auditing external labels and thresholds, and replacing clinical certainty claims with conclusions supported by the actual tests.
+
