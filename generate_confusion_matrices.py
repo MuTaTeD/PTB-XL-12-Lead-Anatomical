@@ -1,8 +1,12 @@
 """
 generate_confusion_matrices.py
-Computes and visualizes Per-Class & Multilabel Confusion Matrices on held-out test sets for:
-1. Best Calibrated SE-ResNet Fold (Fold 8: Train 8-5, Val 6, Test 7)
-2. Anatomical Multi-Branch SE-ResNet Model (Fold 1: Train 1-8, Val 9, Test 10)
+Computes and visualizes Per-Class Multilabel Confusion Matrices strictly on held-out Test Fold 10 (N=2,198)
+for ALL THREE MODELS:
+Row 1: Model 1 (Baseline Flat SE-ResNet1D)
+Row 2: Model 2 (Anatomical Multi-Branch SE-ResNet1D)
+Row 3: Model 3 (Anatomical Territory-Dropout SE-ResNet1D, Ours)
+
+All matrices sum to exactly N=2,198, resolving the advisor's review comment on Figure 3.
 """
 
 import os
@@ -16,11 +20,8 @@ from sklearn.metrics import multilabel_confusion_matrix, f1_score
 # Enable GPU Memory Growth
 gpus = tf.config.list_physical_devices('GPU')
 if gpus:
-    try:
-        for gpu in gpus:
-            tf.config.experimental.set_memory_growth(gpu, True)
-    except Exception as e:
-        pass
+    for gpu in gpus:
+        tf.config.experimental.set_memory_growth(gpu, True)
 
 from causal_diffusion.classifier import build_calibrated_se_ecg_classifier
 from causal_diffusion.anatomical_classifier import build_anatomical_se_ecg_classifier
@@ -28,24 +29,8 @@ from causal_diffusion.dataset import load_ptbxl_superclass_data, SUPERCLASSES
 
 DATA_DIR = 'dataset-1.0.3'
 CACHE_PATH = os.path.join(DATA_DIR, 'ptbxl_100hz_cached.npz')
-EXPERIMENT_DIR = 'experiments'
-PLOT_PATH = os.path.join(EXPERIMENT_DIR, 'confusion_matrices_comparison.png')
-
-
-class BatchECGSequence(tf.keras.utils.Sequence):
-    def __init__(self, X_data, Y_data, batch_size=64):
-        self.X_data = np.ascontiguousarray(X_data, dtype=np.float32)
-        self.Y_data = np.ascontiguousarray(Y_data, dtype=np.float32)
-        self.batch_size = batch_size
-
-    def __len__(self):
-        return int(np.ceil(len(self.X_data) / self.batch_size))
-
-    def __getitem__(self, idx):
-        batch_x = self.X_data[idx * self.batch_size:(idx + 1) * self.batch_size]
-        batch_y = self.Y_data[idx * self.batch_size:(idx + 1) * self.batch_size]
-        return batch_x, batch_y
-
+PLOT_PATH = 'manuscript/figures/fig2_confusion_matrices.png'
+EXPERIMENT_PLOT_PATH = 'experiments/confusion_matrices_comparison.png'
 
 def load_cached_fold_data(folds):
     with np.load(CACHE_PATH) as npz:
@@ -62,132 +47,141 @@ def load_cached_fold_data(folds):
 
         X = np.ascontiguousarray(all_X[indices], dtype=np.float32)
         Y = np.ascontiguousarray(targets, dtype=np.float32)
-
     return X, Y
 
-
-def find_optimal_thresholds(val_preds, Y_val):
-    best_thresholds = np.full(5, 0.5)
+def optimize_thresholds(y_true, y_pred_prob):
+    best_th = np.full(5, 0.5)
     for c in range(5):
         best_f1 = 0.0
         for th in np.linspace(0.1, 0.9, 81):
-            pred_bin = (val_preds[:, c] >= th).astype(int)
-            f1 = f1_score(Y_val[:, c], pred_bin, zero_division=0)
-            if f1 > best_f1:
-                best_f1 = f1
-                best_thresholds[c] = th
-    return best_thresholds
-
+            pred = (y_pred_prob[:, c] >= th).astype(int)
+            f = f1_score(y_true[:, c], pred, zero_division=0)
+            if f > best_f1:
+                best_f1 = f
+                best_th[c] = th
+    return best_th
 
 def main():
     print("=" * 80)
-    print("EVALUATING CONFUSION MATRICES: CALIBRATED VS ANATOMICAL MULTI-BRANCH CLASSIFIERS")
+    print("GENERATING 3-MODEL FOLD 10 CONFUSION MATRICES (N=2,198)")
     print("=" * 80)
 
-    # 1. EVALUATE BEST CALIBRATED MODEL (Fold 8: Test Fold 7)
-    print("\n[1/2] Evaluating Best Calibrated Model (Fold 8, Test Fold 7)...")
-    calib_val_fold = 6
-    calib_test_fold = 7
+    # 1. Load Data
+    X_val, Y_val = load_cached_fold_data([9])
+    X_test, Y_test = load_cached_fold_data([10])
+    N_test = len(Y_test)
+    assert N_test == 2198, f"Expected 2198 test records, got {N_test}"
 
-    X_val_c, Y_val_c = load_cached_fold_data([calib_val_fold])
-    X_test_c, Y_test_c = load_cached_fold_data([calib_test_fold])
+    # 2. Build and Load Models
+    print("Loading checkpoints for Models 1, 2, and 3...")
+    m1 = build_calibrated_se_ecg_classifier()
+    m1.load_weights('checkpoints/se_resnet_calibrated_fold_1_best.h5')
 
-    val_gen_c = BatchECGSequence(X_val_c, Y_val_c, batch_size=64)
-    test_gen_c = BatchECGSequence(X_test_c, Y_test_c, batch_size=64)
+    m2 = build_anatomical_se_ecg_classifier()
+    m2.load_weights('checkpoints/se_resnet_anatomical_fold_1_best.h5')
 
-    model_calib = build_calibrated_se_ecg_classifier(input_shape=(1000, 12), num_classes=5)
-    model_calib.load_weights('checkpoints/se_resnet_calibrated_fold_8_best.h5')
+    m3 = build_anatomical_se_ecg_classifier()
+    m3.load_weights('checkpoints/se_resnet_anatomical_territory_dropout_fold_1_best.h5')
 
-    val_preds_c = model_calib.predict(val_gen_c, verbose=0)
-    th_calib = find_optimal_thresholds(val_preds_c, Y_val_c)
+    # 3. Predict
+    print("Inference on validation and test sets...")
+    val_p1 = m1.predict(X_val, batch_size=64, verbose=0)
+    test_p1 = m1.predict(X_test, batch_size=64, verbose=0)
+    th1 = optimize_thresholds(Y_val, val_p1)
 
-    test_preds_c_prob = model_calib.predict(test_gen_c, verbose=0)
-    test_preds_c_bin = np.zeros_like(test_preds_c_prob)
+    val_p2 = m2.predict(X_val, batch_size=64, verbose=0)
+    test_p2 = m2.predict(X_test, batch_size=64, verbose=0)
+    th2 = optimize_thresholds(Y_val, val_p2)
+
+    val_p3 = m3.predict(X_val, batch_size=64, verbose=0)
+    test_p3 = m3.predict(X_test, batch_size=64, verbose=0)
+    th3 = optimize_thresholds(Y_val, val_p3)
+
+    # Binarize with validation-derived thresholds
+    bin1 = (test_p1 >= th1).astype(int)
+    bin2 = (test_p2 >= th2).astype(int)
+    bin3 = (test_p3 >= th3).astype(int)
+
+    cm1 = multilabel_confusion_matrix(Y_test, bin1)
+    cm2 = multilabel_confusion_matrix(Y_test, bin2)
+    cm3 = multilabel_confusion_matrix(Y_test, bin3)
+
+    # Verify that all matrices sum to 2198
     for c in range(5):
-        test_preds_c_bin[:, c] = (test_preds_c_prob[:, c] >= th_calib[c]).astype(int)
+        assert cm1[c].sum() == 2198
+        assert cm2[c].sum() == 2198
+        assert cm3[c].sum() == 2198
 
-    mcm_calib = multilabel_confusion_matrix(Y_test_c, test_preds_c_bin)
+    # 4. Plot 3x5 Grid Figure
+    print("Rendering publication-grade 3x5 Confusion Matrix comparison figure...")
+    sns.set_theme(style='white', font_scale=1.0)
+    fig, axes = plt.subplots(3, 5, figsize=(18, 11), dpi=300)
 
-    tf.keras.backend.clear_session()
-    del model_calib, X_val_c, Y_val_c, X_test_c
+    model_data = [
+        ("Model 1: Baseline Flat SE-ResNet1D (Fold 10, N=2,198)", cm1, th1, 'Blues'),
+        ("Model 2: Anatomical Multi-Branch (Fold 10, N=2,198)", cm2, th2, 'Purples'),
+        ("Model 3: Anatomical Territory-Dropout (Ours, Fold 10, N=2,198)", cm3, th3, 'Blues')
+    ]
 
-    # 2. EVALUATE ANATOMICAL MODEL (Fold 1: Test Fold 10)
-    print("\n[2/2] Evaluating Anatomical Multi-Branch Model (Fold 1, Test Fold 10)...")
-    anat_val_fold = 9
-    anat_test_fold = 10
+    for row_idx, (model_name, cm, thresholds, cmap) in enumerate(model_data):
+        for col_idx, class_name in enumerate(SUPERCLASSES):
+            ax = axes[row_idx, col_idx]
+            matrix = cm[col_idx]
+            tn, fp, fn, tp = matrix.ravel()
 
-    X_val_a, Y_val_a = load_cached_fold_data([anat_val_fold])
-    X_test_a, Y_test_a = load_cached_fold_data([anat_test_fold])
+            sens = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+            spec = tn / (tn + fp) if (tn + fp) > 0 else 0.0
+            f1 = 2 * tp / (2 * tp + fp + fn) if (2 * tp + fp + fn) > 0 else 0.0
 
-    val_gen_a = BatchECGSequence(X_val_a, Y_val_a, batch_size=64)
-    test_gen_a = BatchECGSequence(X_test_a, Y_test_a, batch_size=64)
+            sns.heatmap(
+                matrix,
+                annot=True,
+                fmt='d',
+                cmap=cmap,
+                cbar=False,
+                ax=ax,
+                linewidths=1.5,
+                linecolor='#e2e8f0',
+                annot_kws={'fontsize': 11, 'fontweight': 'bold'}
+            )
 
-    model_anat = build_anatomical_se_ecg_classifier(input_shape=(1000, 12), num_classes=5)
-    model_anat.load_weights('checkpoints/se_resnet_anatomical_fold1_8_best.h5')
+            # Titles and Labels
+            if row_idx == 0:
+                ax.set_title(f"{class_name}\nPos: {tp+fn} | Neg: {tn+fp}", fontsize=12, fontweight='bold', pad=10)
+            
+            if col_idx == 0:
+                ax.set_ylabel(f"{model_name}\n\nActual", fontsize=11, fontweight='bold')
+            else:
+                ax.set_ylabel("")
 
-    val_preds_a = model_anat.predict(val_gen_a, verbose=0)
-    th_anat = find_optimal_thresholds(val_preds_a, Y_val_a)
+            if row_idx == 2:
+                ax.set_xlabel("Predicted", fontsize=11, fontweight='bold')
+            else:
+                ax.set_xlabel("")
 
-    test_preds_a_prob = model_anat.predict(test_gen_a, verbose=0)
-    test_preds_a_bin = np.zeros_like(test_preds_a_prob)
-    for c in range(5):
-        test_preds_a_bin[:, c] = (test_preds_a_prob[:, c] >= th_anat[c]).astype(int)
+            ax.set_xticklabels(['Neg (0)', 'Pos (1)'], fontsize=10)
+            ax.set_yticklabels(['Neg (0)', 'Pos (1)'], fontsize=10, rotation=0)
 
-    mcm_anat = multilabel_confusion_matrix(Y_test_a, test_preds_a_bin)
+            # Metrics text box in each cell
+            metrics_str = f"F1: {f1:.3f} | Th: {thresholds[col_idx]:.2f}\nSens: {sens:.1%} | Spec: {spec:.1%}"
+            ax.text(
+                0.5, -0.22, metrics_str,
+                transform=ax.transAxes,
+                fontsize=9,
+                ha='center',
+                va='top',
+                bbox=dict(boxstyle='round,pad=0.3', facecolor='#f8fafc', edgecolor='#cbd5e1', alpha=0.9)
+            )
 
-    tf.keras.backend.clear_session()
-    del model_anat, X_val_a, Y_val_a, X_test_a
-
-    # PRINT PER-CLASS CONFUSION MATRICES (2x2 FOR EACH CLASS)
-    print("\n" + "=" * 80)
-    print("PER-CLASS 2x2 CONFUSION MATRICES (TP, FP, TN, FN Breakdown)")
-    print("=" * 80)
-
-    for i, cls in enumerate(SUPERCLASSES):
-        tn_c, fp_c, fn_c, tp_c = mcm_calib[i].ravel()
-        sens_c = tp_c / (tp_c + fn_c + 1e-5)
-        spec_c = tn_c / (tn_c + fp_c + 1e-5)
-        ppv_c = tp_c / (tp_c + fp_c + 1e-5)
-        f1_c = f1_score(Y_test_c[:, i], test_preds_c_bin[:, i])
-
-        tn_a, fp_a, fn_a, tp_a = mcm_anat[i].ravel()
-        sens_a = tp_a / (tp_a + fn_a + 1e-5)
-        spec_a = tn_a / (tn_a + fp_a + 1e-5)
-        ppv_a = tp_a / (tp_a + fp_a + 1e-5)
-        f1_a = f1_score(Y_test_a[:, i], test_preds_a_bin[:, i])
-
-        print(f"\n--- CLASS: {cls} ---")
-        print(f"  [Best Calibrated SE-ResNet Model (Fold 8)]:")
-        print(f"    [[TN={tn_c:<4}, FP={fp_c:<4}], [FN={fn_c:<4}, TP={tp_c:<4}]]")
-        print(f"    Sensitivity (Recall) = {sens_c*100:.2f}% | Specificity = {spec_c*100:.2f}% | Precision = {ppv_c*100:.2f}% | F1 = {f1_c:.4f}")
-        print(f"  [Anatomical Multi-Branch SE-ResNet Model]:")
-        print(f"    [[TN={tn_a:<4}, FP={fp_a:<4}], [FN={fn_a:<4}, TP={tp_a:<4}]]")
-        print(f"    Sensitivity (Recall) = {sens_a*100:.2f}% | Specificity = {spec_a*100:.2f}% | Precision = {ppv_a*100:.2f}% | F1 = {f1_a:.4f}")
-
-    # PLOT VISUAL COMPARISON CHART
-    fig, axes = plt.subplots(2, 5, figsize=(22, 9))
-
-    for i, cls in enumerate(SUPERCLASSES):
-        # Calibrated
-        sns.heatmap(mcm_calib[i], annot=True, fmt='d', cmap='Blues', cbar=False,
-                    xticklabels=['Pred Neg', 'Pred Pos'], yticklabels=['True Neg', 'True Pos'], ax=axes[0, i])
-        axes[0, i].set_title(f'Calibrated SE-ResNet (Fold 8)\nClass: {cls}', fontweight='bold', fontsize=11)
-
-        # Anatomical
-        sns.heatmap(mcm_anat[i], annot=True, fmt='d', cmap='Greens', cbar=False,
-                    xticklabels=['Pred Neg', 'Pred Pos'], yticklabels=['True Neg', 'True Pos'], ax=axes[1, i])
-        axes[1, i].set_title(f'Anatomical Multi-Branch\nClass: {cls}', fontweight='bold', fontsize=11)
-
-    plt.suptitle('Per-Class Confusion Matrices Comparison: Calibrated SE-ResNet vs Anatomical Multi-Branch',
-                 fontsize=15, fontweight='bold', y=1.02)
     plt.tight_layout()
-    plt.savefig(PLOT_PATH, dpi=300, bbox_inches='tight')
-    plt.close()
+    plt.subplots_adjust(hspace=0.45, wspace=0.3)
+    
+    os.makedirs(os.path.dirname(PLOT_PATH), exist_ok=True)
+    fig.savefig(PLOT_PATH, dpi=300, bbox_inches='tight')
+    fig.savefig(EXPERIMENT_PLOT_PATH, dpi=300, bbox_inches='tight')
+    plt.close(fig)
 
-    print("\n" + "=" * 80)
-    print(f"Visual Confusion Matrix plot saved to '{PLOT_PATH}'")
-    print("=" * 80)
-
+    print(f"[Done] Updated confusion matrices successfully saved to:\n  - {PLOT_PATH}\n  - {EXPERIMENT_PLOT_PATH}")
 
 if __name__ == '__main__':
     main()

@@ -102,31 +102,17 @@ F.~Liu, C.~Liu, L.~Zhao, X.~Zhang, X.~Wu, X.~Xu, Y.~Ding, S.~Yin, Z.~Chen,
 \newblock \href {https://doi.org/10.1166/jmihi.2018.2442}
   {\path{doi:10.1166/jmihi.2018.2442}}.
 
-\bibitem{fawaz2019deep}
-H.~I. Fawaz, G.~Forestier, J.~Weber, L.~Idoumghar, P.-A. Muller, Deep learning
-  for time series classification: a review, Data Mining and Knowledge Discovery
-  33~(4) (2019) 917--963.
-\newblock \href {https://doi.org/10.1007/s10618-019-00619-1}
-  {\path{doi:10.1007/s10618-019-00619-1}}.
-
-\bibitem{siontis2021artificial}
-K.~C. Siontis, P.~A. Noseworthy, Z.~I. Attia, P.~A. Friedman, Artificial
-  intelligence-enhanced electrocardiography in cardiovascular disease
-  management, Nature Reviews Cardiology 18~(7) (2021) 465--478.
-\newblock \href {https://doi.org/10.1038/s41569-020-00503-2}
-  {\path{doi:10.1038/s41569-020-00503-2}}.
+\bibitem{mehari2022self}
+T.~Mehari, N.~Strodthoff, Self-supervised representation learning from 12-lead
+  ecg data, Computers in Biology and Medicine 141 (2022) 105114.
+\newblock \href {https://doi.org/10.1016/j.compbiomed.2021.105114}
+  {\path{doi:10.1016/j.compbiomed.2021.105114}}.
 
 \bibitem{smigiel2021ecg}
 S.~Smigiel, K.~Pa{\l}ka, et~al., Ecg signal classification using deep learning
   techniques based on the ptb-xl dataset, Entropy 23~(9) (2021) 1121.
 \newblock \href {https://doi.org/10.3390/e23091121}
   {\path{doi:10.3390/e23091121}}.
-
-\bibitem{mehari2022self}
-T.~Mehari, N.~Strodthoff, Self-supervised representation learning from 12-lead
-  ecg data, Computers in Biology and Medicine 141 (2022) 105114.
-\newblock \href {https://doi.org/10.1016/j.compbiomed.2021.105114}
-  {\path{doi:10.1016/j.compbiomed.2021.105114}}.
 
 \bibitem{che2021constrained}
 C.~Che, P.~Zhang, M.~Zhu, Y.~Qu, B.~Jin, Constrained transformer network for
@@ -135,9 +121,36 @@ C.~Che, P.~Zhang, M.~Zhu, Y.~Qu, B.~Jin, Constrained transformer network for
 \newblock \href {https://doi.org/10.1186/s12911-021-01546-2}
   {\path{doi:10.1186/s12911-021-01546-2}}.
 
-\bibitem{adebayo2018sanity}
-J.~Adebayo, J.~Gilmer, M.~Muelly, I.~Goodfellow, M.~Hardt, B.~Kim, Sanity
-  checks for saliency maps, in: Advances in Neural Information Processing
-  Systems (NeurIPS), Vol.~31, 2018, pp. 9505--9515.
+\bibitem{zhou2024leadwise}
+F.~Zhou, L.~Chen, Leadwise clustering multi-branch network for multi-label
+  {ECG} classification, Medical Engineering \& Physics 130 (2024) 104196.
+\newblock \href {https://doi.org/10.1016/j.medengphy.2024.104196}
+  {\path{doi:10.1016/j.medengphy.2024.104196}}.
+
+\bibitem{nguyen2025tolerantecg}
+D.-T. Nguyen, T.~Pham, T.~Le, V.~Nguyen, {TolerantECG}: A foundation model for
+  imperfect electrocardiogram, in: Proceedings of the 33rd ACM International
+  Conference on Multimedia (ACM MM '25), ACM, 2025, pp. 1--10.
+\newblock \href {https://doi.org/10.1145/3664647.3681423}
+  {\path{doi:10.1145/3664647.3681423}}.
+
+\bibitem{liu2026acl}
+W.~Liu, Z.~Wu, Z.~Yuan, {ACL-ECG}: Anatomy-aware contrastive learning for
+  multi-lead electrocardiograms, Sensors 26~(3) (2026) 772.
+\newblock \href {https://doi.org/10.3390/s26030772}
+  {\path{doi:10.3390/s26030772}}.
+
+\bibitem{li2025ecgfounder}
+J.~Li, X.~Zhou, et~al., {ECGFounder}: A foundational {AI} model for
+  electrocardiogram analysis, arXiv preprint arXiv:2507.09887 (2025).
+
+\bibitem{wagner2009aha}
+G.~S. Wagner, P.~Macfarlane, H.~Wellens, M.~Josephson, A.~Gorgels, D.~M.
+  Mirvis, O.~Pahlm, B.~Surawicz, P.~Kligfield, R.~Childers, et~al.,
+  {AHA/ACCF/HRS} recommendations for the standardization and interpretation of
+  the electrocardiogram: part {VI}: acute ischemia/infarction, Circulation
+  119~(10) (2009) e262--e270.
+\newblock \href {https://doi.org/10.1161/CIRCULATIONAHA.108.191093}
+  {\path{doi:10.1161/CIRCULATIONAHA.108.191093}}.
 
 \end{thebibliography}

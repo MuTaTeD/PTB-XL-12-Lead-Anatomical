@@ -24,6 +24,7 @@ cpsc_2018/
 checkpoints/backup_epoch45/
 checkpoints/major physics panelty/
 checkpoints/old training/
+checkpoints/ablation_*.h5
 
 # Symlinks & Local Environment
 libdevice.10.bc
@@ -42,7 +43,6 @@ ENV/
 texput.log
 sample.aux
 sample.log
-manuscript/main_single.tex
 manuscript/main_single.aux
 manuscript/main_single.log
 manuscript/main_single.blg

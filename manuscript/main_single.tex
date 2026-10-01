@@ -1,4 +1,5 @@
-\documentclass[5p,twocolumn,10pt]{elsarticle}
+\documentclass[12pt]{elsarticle}
+\usepackage[margin=1in]{geometry}
 
 \journal{Computers in Biology and Medicine}
 
@@ -47,19 +48,19 @@
 Deep neural networks have achieved expert-level diagnostic accuracy in automated 12-lead electrocardiogram (ECG) classification. However, their clinical adoption remains severely hindered by opaque decision boundaries and the unreliability of naive, uncalibrated 1D saliency attributions that fail to reflect coronary anatomy. Furthermore, generative counterfactual approaches (GANs and diffusion models) frequently suffer from training instability, temporal phase collapse, and rhythm distortion, generating unrealistic hallucinations rather than faithful explanations. To address these fundamental challenges, we propose an \textbf{Anatomical Territory-Dropout Squeeze-and-Excitation 1D ResNet (SE-ResNet1D)} coupled with a hierarchical \textbf{Multi-Scale Anatomical Explainability (XAI) Framework}. By decomposing 12-lead signals into four physiological coronary vascular territories---Inferior ($\text{II}, \text{III}, \text{aVF}$), Antero-Septal ($\text{V1}-\text{V4}$), Lateral ($\text{I}, \text{aVL}, \text{V5}, \text{V6}$), and Cavity Reciprocal ($\text{aVR}$)---and enforcing stochastic lead-territory dropout ($p_{\text{drop}} = 0.15$) during training, our classifier eliminates inter-lead shortcut co-adaptation. On the benchmark PTB-XL dataset (21,799 records, cyclic 10-fold cross-validation), the model establishes a state-of-the-art Macro ROC-AUC of \textbf{0.9329} [95\% CI: 0.9270--0.9388] (F1 = \textbf{0.7836}), systematically outperforming flat ResNets ($0.9248$) and published literature baselines. Our Multi-Scale Anatomical XAI framework bridges three clinical tiers: (1) \textit{Macro-level} vascular territory occlusion sensitivity ($\Delta P$) and learned cross-territory softmax attention; (2) \textit{Meso-level} 1D Multi-Branch Grad-CAM++ isolating morphological hallmarks over 3.0-second clinical diagnostic windows; and (3) \textit{Micro-level} axiomatic Integrated Gradients satisfying sample-level completeness ($|\sum \text{IG} - \Delta \text{Score}| < 0.02$). Audited across the full held-out PTB-XL Fold 10 test cohort ($N = 2,198$ records), Myocardial Infarction predictions ($N=550$) exhibit \textbf{86.5\%} dominant attribution ($\Delta P = 0.277$), with per-patient subclass validation allocating \textbf{82.8\%} attribution to Antero-Septal leads in LAD infarcts ($N=269$) and \textbf{52.2\%} to Inferior leads in RCA infarcts ($N=320$); Hypertrophy ($N=262$) allocates \textbf{58.3\%} (66.1\% in confident true positives) to Lateral leads adhering to Sokolow-Lyon criteria; Conduction Disturbances ($N=496$) assign \textbf{43.9\%} to Inferior and \textbf{33.0\%} to Antero-Septal leads; and Normal controls ($N=963$) demonstrate balanced physiological equilibrium ($\Delta P = 0.117$). External zero-shot validation on 6,877 CPSC2018 records confirms robust out-of-distribution transferability (Macro ROC-AUC = \textbf{0.7849}, Normal Sinus Rhythm = \textbf{0.9049}).
 \end{abstract}
 
-\begin{graphicalabstract}
+% \begin{graphicalabstract}
 \centering
 \includegraphics[width=0.95\linewidth]{figures/fig1_10fold_classifier.png}
-\end{graphicalabstract}
+% \end{graphicalabstract}
 
-\begin{highlights}
+% \begin{highlights}
 \item Anatomical Lead-Territory SE-ResNet1D partitions 12-lead ECGs into four anatomical lead groupings.
 \item Dual regularization via input territory dropout ($p=0.15$) and temporal time-masking cutout ($p=0.70$) prevents inter-lead shortcut learning while reducing parameters by 35.5\% (492k vs.\ 763k).
 \item Matches published benchmark performance on standard held-out Fold 10 (0.9306 ROC-AUC) and achieves 0.9329 mean cross-validation ROC-AUC on PTB-XL.
 \item Tri-fold Multi-Scale Anatomical XAI Framework integrates Macro Territory Occlusion, Meso 1D Grad-CAM++, and Micro Integrated Gradients rendered on 3.0\,s clinical pink grid.
 \item Comprehensive stress-testing demonstrates enhanced robustness under missing leads, occluded territories (+0.0516 to +0.1133 AUC advantage), and 24.2\% lower calibration error (ECE 8.9\% vs.\ 11.1\%).
 \item External zero-shot generalization audit across 6,877 CPSC2018 records with published SNOMED CT code ontology mapping.
-\end{highlights}
+% \end{highlights}
 
 \begin{keyword}
 12-lead Electrocardiogram (ECG) \sep Anatomical Lead Decomposition \sep Territory-Dropout Regularization \sep Temporal Cutout \sep Multi-Scale Explainability \sep Grad-CAM++ \sep Integrated Gradients \sep Robustness Stress Testing
