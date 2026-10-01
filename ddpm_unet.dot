@@ -1,0 +1,48 @@
+
+digraph G {
+    rankdir=LR;
+    node [shape=box, style="rounded,filled", fillcolor="lightyellow", fontname="Arial", margin="0.2,0.1"];
+    edge [fontname="Arial", fontsize=10];
+    
+    subgraph cluster_unet {
+        label="1D Conditional DDPM U-Net Engine";
+        style=dashed; color=gray;
+        
+        Input [label="Noisy Signal x_t", fillcolor="lightcyan"];
+        Time [label="Time Step t\n(Sinusoidal Emb.)", shape=ellipse, fillcolor="white"];
+        Class [label="Target Class y\n(e.g., NORM)", shape=ellipse, fillcolor="white"];
+        
+        Enc1 [label="Down Block 1\n(Conv1D)"];
+        Enc2 [label="Down Block 2\n(Conv1D + Attn)"];
+        Enc3 [label="Down Block 3\n(Conv1D + Attn)"];
+        
+        Bot [label="Bottleneck\n(Conv1D + Attn)", fillcolor="lightsalmon"];
+        
+        Dec3 [label="Up Block 3\n(Conv1D + Attn)"];
+        Dec2 [label="Up Block 2\n(Conv1D + Attn)"];
+        Dec1 [label="Up Block 1\n(Conv1D)"];
+        
+        Output [label="Predicted Noise ε_θ", fillcolor="lightgreen"];
+        
+        Input -> Enc1 -> Enc2 -> Enc3 -> Bot -> Dec3 -> Dec2 -> Dec1 -> Output;
+        
+        # Skip connections
+        Enc1 -> Dec1 [style=dotted, label="Skip"];
+        Enc2 -> Dec2 [style=dotted, label="Skip"];
+        Enc3 -> Dec3 [style=dotted, label="Skip"];
+        
+        # Conditioning
+        Time -> Enc1 [style=dashed, color=gray];
+        Time -> Enc2 [style=dashed, color=gray];
+        Time -> Enc3 [style=dashed, color=gray];
+        Time -> Bot [style=dashed, color=gray];
+        Time -> Dec3 [style=dashed, color=gray];
+        Time -> Dec2 [style=dashed, color=gray];
+        Time -> Dec1 [style=dashed, color=gray];
+        
+        Class -> Bot [style=dashed, color=gray, label="Conditioning"];
+    }
+    
+    Guidance [label="Classifier Guidance\n∇ log p(y|x_t)", shape=note, fillcolor="white"];
+    Guidance -> Output [label="Modifies Sampling (DDIM)"];
+}

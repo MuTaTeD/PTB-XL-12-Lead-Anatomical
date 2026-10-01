@@ -112,18 +112,18 @@ Evaluated on the standard PTB-XL split (Folds 1–8 Train, Fold 9 Val, Fold 10 T
 
 | Architecture / Configuration | Grouping Strategy | Parameters | Macro AUC | Macro F1 (Val-Opt) | Macro F1 (0.50 Thresh) | Difference vs Proposed ($\Delta$ AUC) |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **Proposed Model 3** | Anatomical + Territory-Drop + Cutout | **492,185** | **0.9306** | **0.7549** | **0.7376** | **Baseline** |
-| **Control 1: Random Lead Groups** | Random [3, 4, 4, 1] + Branch-Drop + Cutout | 492,185 | 0.9234 | 0.7410 | 0.7258 | **-0.0072** |
-| **Control 2: Ordinary Lead Dropout** | Flat ResNet + Random Lead Drop + Cutout | 494,278 | 0.9185 | 0.7321 | 0.7180 | **-0.0121** |
-| **Control 3: Parameter-Matched Flat** | Flat ResNet (matched 494k params) | 494,278 | 0.9124 | 0.7248 | 0.7112 | **-0.0182** |
-| **Control 4: Ablation Without Cutout** | Anatomical + Territory-Drop (No Cutout) | 492,185 | 0.9258 | 0.7482 | 0.7295 | **-0.0048** |
-| **Control 5: Anatomical Alone (Model 2)** | Anatomical (No Dropout, No Cutout) | 492,185 | 0.9282 | 0.7580 | 0.7412 | **-0.0024** |
+| **Proposed Model 3** | Anatomical + Territory-Drop + Cutout | **492,185** | **0.9306** | **0.7549** | **0.7376** | **Reference** |
+| **Control 1: Random Lead Groups** | Random [3, 4, 4, 1] + Branch-Drop + Cutout | 492,185 | 0.9232 | 0.7387 | 0.7072 | **-0.0074** |
+| **Control 2: Ordinary Lead Dropout** | Flat ResNet + Random Lead Drop + Cutout | 494,278 | 0.9099 | 0.7225 | 0.6744 | **-0.0207** |
+| **Control 3: Parameter-Matched Flat** | Flat ResNet (matched 494k params) | 494,278 | 0.9155 | 0.7337 | 0.7112 | **-0.0151** |
+| **Control 4: Ablation Without Cutout** | Anatomical + Territory-Drop (No Cutout) | 492,185 | 0.9272 | 0.7514 | 0.7141 | **-0.0034** |
+| **Control 5: Anatomical Alone (Model 2)** | Anatomical (No Dropout, No Cutout) | 492,185 | 0.9282 | 0.7580 | 0.7390 | **-0.0024** |
 
 ### Multi-Seed Reproducibility (Proposed Model 3 on Fold 10):
 - **Seed 42**: Macro AUC = 0.9306, Macro F1 = 0.7549
-- **Seed 123**: Macro AUC = 0.9312, Macro F1 = 0.7561
-- **Seed 456**: Macro AUC = 0.9299, Macro F1 = 0.7538
-- **Summary**: **$0.9306 \pm 0.0007$ Macro AUC**, proving high multi-seed stability.
+- **Seed 123**: Macro AUC = 0.9297, Macro F1 = 0.7543
+- **Seed 456**: Macro AUC = 0.9238, Macro F1 = 0.7437
+- **Summary**: **$0.9280 \pm 0.0037$ Macro AUC** ($0.7510 \pm 0.0063$ Macro F1), proving robust multi-seed stability.
 
 ---
 

@@ -1,0 +1,77 @@
+
+digraph G {
+    rankdir=TB;
+    node [shape=box, style="rounded,filled", fillcolor="lightblue", fontname="Arial", margin="0.2,0.1"];
+    edge [fontname="Arial", fontsize=10];
+    
+    subgraph cluster_model1 {
+        label="Model 1: Baseline SE-ResNet1D";
+        style=dashed; color=gray;
+        M1_in [label="12-Lead ECG (1000x12)"];
+        M1_res [label="Shared 1D ResNet Blocks\n(12 Channels)"];
+        M1_se [label="Squeeze-and-Excitation"];
+        M1_pool [label="Global Average Pooling"];
+        M1_out [label="Diagnostic Output"];
+        M1_in -> M1_res -> M1_se -> M1_pool -> M1_out;
+    }
+    
+    subgraph cluster_model2 {
+        label="Model 2: Anatomical Multi-Branch SE-ResNet1D";
+        style=dashed; color=gray;
+        M2_in [label="12-Lead ECG (1000x12)"];
+        
+        M2_b1 [label="Inferior Branch\n(II, III, aVF)"];
+        M2_b2 [label="Antero-Septal Branch\n(V1-V4)"];
+        M2_b3 [label="Lateral Branch\n(I, aVL, V5, V6)"];
+        M2_b4 [label="Cavity Branch\n(aVR)"];
+        
+        M2_r1 [label="1D ResNet"];
+        M2_r2 [label="1D ResNet"];
+        M2_r3 [label="1D ResNet"];
+        M2_r4 [label="1D ResNet"];
+        
+        M2_concat [label="Concatenate Features"];
+        M2_se [label="Squeeze-and-Excitation"];
+        M2_pool [label="Global Average Pooling"];
+        M2_out [label="Diagnostic Output"];
+        
+        M2_in -> M2_b1; M2_in -> M2_b2; M2_in -> M2_b3; M2_in -> M2_b4;
+        M2_b1 -> M2_r1; M2_b2 -> M2_r2; M2_b3 -> M2_r3; M2_b4 -> M2_r4;
+        M2_r1 -> M2_concat; M2_r2 -> M2_concat; M2_r3 -> M2_concat; M2_r4 -> M2_concat;
+        M2_concat -> M2_se -> M2_pool -> M2_out;
+    }
+
+    subgraph cluster_model3 {
+        label="Model 3: Anatomical Territory-Dropout SE-ResNet1D (Proposed)";
+        style=dashed; color=gray;
+        M3_in [label="12-Lead ECG (1000x12)"];
+        
+        M3_b1 [label="Inferior Branch"];
+        M3_b2 [label="Antero-Septal Branch"];
+        M3_b3 [label="Lateral Branch"];
+        M3_b4 [label="Cavity Branch"];
+        
+        M3_r1 [label="1D ResNet"];
+        M3_r2 [label="1D ResNet"];
+        M3_r3 [label="1D ResNet"];
+        M3_r4 [label="1D ResNet"];
+        
+        M3_d1 [label="Territory Dropout (p=0.15)", fillcolor="lightpink"];
+        M3_d2 [label="Territory Dropout (p=0.15)", fillcolor="lightpink"];
+        M3_d3 [label="Territory Dropout (p=0.15)", fillcolor="lightpink"];
+        M3_d4 [label="Territory Dropout (p=0.15)", fillcolor="lightpink"];
+        
+        M3_concat [label="Concatenate Features"];
+        M3_se [label="Squeeze-and-Excitation"];
+        M3_pool [label="Global Average Pooling"];
+        M3_out [label="Diagnostic Output"];
+        
+        M3_in -> M3_b1; M3_in -> M3_b2; M3_in -> M3_b3; M3_in -> M3_b4;
+        M3_b1 -> M3_r1 -> M3_d1; 
+        M3_b2 -> M3_r2 -> M3_d2; 
+        M3_b3 -> M3_r3 -> M3_d3; 
+        M3_b4 -> M3_r4 -> M3_d4;
+        M3_d1 -> M3_concat; M3_d2 -> M3_concat; M3_d3 -> M3_concat; M3_d4 -> M3_concat;
+        M3_concat -> M3_se -> M3_pool -> M3_out;
+    }
+}

@@ -1,0 +1,33 @@
+﻿Verdict on this round
+Point by point:
+---------------------------------------------
+| |# | |Advisor's point | |Status |
+---------------------------------------------
+| |1 | |Table 7 task mismatch | |Resolved — rebuilt against the correct five-superclass, standard-split numbers (0.930/0.928/0.921); headline claim honestly downgraded from "systematically outperforming" to "matching ResNet1D-Wang, outperforming XResNet1D101/Inception1D/TolerantECG" |
+---------------------------------------------
+| |2 | |Missing recent baselines | |Resolved — all four (Leadwise clustering, TolerantECG, ACL-ECG, ECGFounder-PT) added with appropriate non-comparability caveats |
+---------------------------------------------
+| |3 | |Anatomy-vs-regularization confound | |Resolved, well — the 5-control ablation (random lead groups, ordinary lead dropout, parameter-matched flat model, no-cutout ablation, multi-seed) is exactly the right experiment and the random-group control (−0.0074 AUC) is the single most convincing piece of new evidence in this draft |
+---------------------------------------------
+| |4 | |Statistical rigor / dependence caveat | |Resolved — explicit dependence caveat added, plus an independent patient-level bootstrap (B=1000) on the untouched Fold 10 split as the real inferential test, properly distinguished from the dependent cyclic-fold Wilcoxon |
+---------------------------------------------
+| |5 | |SNOMED mapping / Tuned F1 | |Resolved, with real integrity — full mapping table added, and the three-threshold breakdown now surfaces the honest untouched-zero-shot number (0.4893) instead of only the flattering tuned one (0.5784) |
+---------------------------------------------
+| |6 | |Anatomical overclaim / LMI vs ALMI | |Resolved well — "mutually orthogonal" language removed, terminology changed to "ECG-derived infarct location annotations," and the lateral subgroup is now honestly decomposed (isolated LMI N=11 vs. ALMI N=37), directly explaining why the aggregated 21.3% figure was misleading |
+---------------------------------------------
+| |7 | |IG completeness ≠ clinical reasoning | |Partially resolved — the distinction is now stated, but "clinical faithfulness is corroborated" is still asserted rather than demonstrated by the specific test requested |
+---------------------------------------------
+| |8 | |Lateral subgroup "honest treatment" | |Resolved (see #6) |
+---------------------------------------------
+| |9 | |XAI faithfulness (full list) | |Partially resolved — the input-occlusion-vs-training-dropout mismatch is fixed in a genuinely elegant way (territory dropout redefined to zero input leads directly, explicitly stated to be "symmetric with inference-time occlusion"); but the flat-vs-anatomical XAI comparison and the "single shared attention vector isn't class-specific" critique are not addressed anywhere |
+---------------------------------------------
+| |10 | |Figure/implementation inconsistencies | |Mostly resolved — Figure 3's fold/row/sum mismatch is cleanly fixed and explicitly verified in the caption; Algorithm 1 now includes the attention-fusion step matching Table 2/Figure 2. Figure 5's occlusion-vs-attention divergence is now disclosed rather than hidden, but it's explained away with a single-case physiological narrative rather than checked against the full MI cohort (N=550) they already have |
+---------------------------------------------
+| |11 | |Robustness/deployment/calibration | |Resolved, and unusually honest — the five-dimension stress suite (missing leads, occluded territories, baseline wander, noise, lead swaps) plus calibration (ECE) and latency is comprehensive and includes unflattering results (see below) |
+Two things to fix before this goes out
+1. A likely genuine data error, not just a polish item. Table 4 (cyclic 10-fold) reports Model 2 and Model 3 with the identical mean ROC-AUC of 0.9407 (± 0.0056 vs ± 0.0051). This directly conflicts with the paper's own Wilcoxon claim two paragraphs later that Model 3 "significantly outperforms" Model 2 (p=0.0039) — you can't have a significant paired difference with identical means. This reads like a copy-paste artifact from editing one row and not the other (earlier drafts had Model 2=0.9295, Model 3=0.9329 in this same table). This needs to be corrected and re-verified against the actual per-fold results before submission — it's exactly the kind of internal-consistency slip a careful reviewer catches in the first pass.
+2. The robustness suite contains a real, unflagged failure mode. Table 10 shows that at severe noise (SNR=0dB), Model 3 collapses from 0.81 to 0.5763 AUC — actually worse than Model 1's 0.8146 at the same condition (Δ = −0.2384). Similarly at the highest baseline-wander severity, Model 3 underperforms Model 1 (Δ = −0.0390). The abstract and body only surface the favorable robustness numbers (missing leads, occluded territories), and this catastrophic-noise result isn't discussed anywhere in the Discussion or Limitations. Given this is the exact experiment the advisor asked for, presenting it in the table but not engaging with the unflattering result in the text will likely read as selective reporting to a careful reviewer — which would undercut the credibility you've built everywhere else in this draft. I'd recommend adding a sentence or two to the Discussion/Limitations: something like "under extreme uniform noise, territory-dropout's reliance on self-sufficient per-branch features appears to degrade more sharply than the flat baseline's pooled representation, suggesting the robustness benefit is specific to structured missing-data patterns rather than generic signal degradation" — turning a hidden gap into an honest, interesting finding, which is consistent with how well the rest of this draft handles unflattering results (the STTC zero-shot weakness, the LMI/ALMI split, the untouched zero-shot F1).
+Still open from the advisor's list
+* Flat-vs-anatomical XAI comparison (same methods, both architectures) — not done.
+* "Shared attention vector isn't class-specific" — not addressed; the attention weights are computed once per input regardless of which diagnostic class is being explained, and this limitation isn't flagged.
+* Figure 5's occlusion/attention divergence — disclosed honestly but only explained via one case; worth a one-line cohort-level check ("across all N=550 MI cases, cross-territory attention assigns >X% to Inferior leads in Y% of anterior-MI cases, consistent with reciprocal change") if the data's already sitting there from the per-patient audit.

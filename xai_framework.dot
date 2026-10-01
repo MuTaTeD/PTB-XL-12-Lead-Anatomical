@@ -1,0 +1,74 @@
+
+digraph G {
+    rankdir=LR;
+    nodesep=0.85;
+    ranksep=0.32;
+    dpi=300;
+    
+    node [shape=box, style="rounded,filled", fillcolor="lightblue", fontname="Arial Bold", fontsize=19, margin="0.26,0.22", height=0.7];
+    edge [fontname="Arial Bold", fontsize=15, penwidth=1.8];
+    
+    subgraph cluster_input {
+        label="1. Standard 12-Lead ECG Input";
+        fontsize=18; fontname="Arial Bold";
+        style=dashed; color="#455A64"; penwidth=1.8;
+        ECG_in [label="12-Lead ECG Signal\n(1000 × 12, 100 Hz)", fillcolor="#E0F7FA"];
+    }
+    
+    subgraph cluster_decomp {
+        label="2. Anatomical Lead Decomposition";
+        fontsize=18; fontname="Arial Bold";
+        style=dashed; color="#455A64"; penwidth=1.8;
+        T1 [label="Inferior Territory\n(II, III, aVF)", fillcolor="#FFE0B2"];
+        T2 [label="Antero-Septal Territory\n(V1, V2, V3, V4)", fillcolor="#C8E6C9"];
+        T3 [label="Lateral Territory\n(I, aVL, V5, V6)", fillcolor="#BBDEFB"];
+        T4 [label="Cavity / Reciprocal\n(aVR)", fillcolor="#E1BEE7"];
+    }
+    
+    ECG_in -> T1;
+    ECG_in -> T2;
+    ECG_in -> T3;
+    ECG_in -> T4;
+    
+    subgraph cluster_model {
+        label="3. Anatomical SE-ResNet1D Model";
+        fontsize=18; fontname="Arial Bold";
+        style=dashed; color="#455A64"; penwidth=1.8;
+        B1 [label="SE-ResNet Branch 1\n(Inferior)"];
+        B2 [label="SE-ResNet Branch 2\n(Antero-Septal)"];
+        B3 [label="SE-ResNet Branch 3\n(Lateral)"];
+        B4 [label="SE-ResNet Branch 4\n(Cavity)"];
+        
+        Concat [label="Concatenate & SE Bottleneck\nLearned Cross-Territory\nSoftmax Attention", fillcolor="#FFF9C4"];
+        Classifier [label="Diagnostic Classification Head\n[NORM, MI, STTC, CD, HYP]", fillcolor="#FFCDD2"];
+        
+        T1 -> B1; T2 -> B2; T3 -> B3; T4 -> B4;
+        B1 -> Concat; B2 -> Concat; B3 -> Concat; B4 -> Concat;
+        Concat -> Classifier;
+    }
+    
+    subgraph cluster_xai {
+        label="4. Multi-Scale Anatomical Explainability Engine";
+        fontsize=18; fontname="Arial Bold";
+        style=dashed; color="#1A237E"; penwidth=2.0;
+        
+        Macro [label="Macro-Tier:\nTerritory Occlusion (ΔP)\n& Attention Share w_attn", fillcolor="#FFECB3"];
+        Meso [label="Meso-Tier:\n1D Multi-Branch Grad-CAM++\n(Morphological Waveform Localization)", fillcolor="#D1C4E9"];
+        Micro [label="Micro-Tier:\nAxiomatic Integrated Gradients\n(Completeness: |ΣIG - ΔScore| < 0.02)", fillcolor="#B2DFDB"];
+    }
+    
+    Classifier -> Macro [label=" Territory\nMasking ", minlen=2];
+    Classifier -> Meso [label=" Branch Gradients\n∇_A y^c ", minlen=2];
+    Classifier -> Micro [label=" Path Integral\n∫ ∇_x F ", minlen=2];
+    
+    subgraph cluster_output {
+        label="5. Clinician Decision Support";
+        fontsize=18; fontname="Arial Bold";
+        style=dashed; color="#1B5E20"; penwidth=2.0;
+        Viz [label="High-Resolution 3.0s Zoom Overlay\nClinical Pink ECG Grid (0.20s/0.04s)\nMulti-Panel Attribution Profile", fillcolor="#F8BBD0", shape=ellipse, margin="0.22,0.22"];
+    }
+    
+    Macro -> Viz;
+    Meso -> Viz;
+    Micro -> Viz;
+}
