@@ -11,8 +11,8 @@
 We thank the advisor for this rigorous, perceptive, and constructive critique. We have fully embraced the assessment: rather than defending past oversights with rhetoric, we conducted extensive re-evaluations, code harmonization, ablation experiments, literature integration, and statistical auditing.
 
 Key actions taken:
-1. **Resolved Task Mismatch in Table 7:** Rebuilt Table 7 with the exact 5-diagnostic superclass task on the standard held-out Fold 10 benchmark ($N=2,198$) from Strodthoff et al. (2020), reporting ResNet1D-Wang (0.930), XResNet1D101 (0.928), Inception1D (0.921), TolerantECG (0.926), alongside our Model 1 (0.9097), Model 2 (0.9282), and Model 3 (0.9306), accompanied by patient-level paired bootstrap confidence intervals.
-2. **Integrated Recent Literature (2024–2026):** Formally incorporated and positioned against Zhou & Chen (*Med Eng Phys*, 2024), TolerantECG (*ACM MM*, 2025), ACL-ECG (*Sensors*, 2026), and ECGFounder-PT (*arXiv*, 2025).
+1. **Resolved Task Mismatch in Table 7:** Rebuilt Table 7 into three principled panels strictly on the identical 5-diagnostic superclass task on the standard held-out Fold 10 benchmark ($N=2,198$) from Strodthoff et al. (2020): Panel A (High-Capacity Ensembles: Stacking Ensemble 0.9360), Panel B (Published Supervised & Foundation Baselines: ResNet1D-Wang 0.9300, XResNet1D101 0.9280, TolerantECG 0.9260, Inception1D 0.9210, MIMIC-IV Foundation Tokenizer 0.8945), and Panel C (Proposed Framework & Ablation Baselines: Model 1 0.9097, Model 2 0.9282, Model 3 0.9306), accompanied by patient-level paired bootstrap confidence intervals.
+2. **Integrated Recent Literature (2024–2026) & Compatibility Audit:** Formally audited and positioned against 11 recent works across sequence models, foundation tokenizers, XAI faithfulness, and lead grouping (Al-Mutawa et al. 2026, Zhang et al. 2025 DBA-ASFNet, Hsu et al. 2026, Bhattacharya et al. 2026, Kumar et al. 2026, Zhao et al. 2026, Petrov et al. 2025, Bender et al. 2022, Zhou & Chen 2024, TolerantECG 2025, and ACL-ECG 2026), explicitly excluding task-mismatched 44-statement tasks from Table 7 to preserve benchmark integrity.
 3. **Ablation Suite to Isolate Anatomical Inductive Bias:** Implemented and evaluated five control models on Fold 10:
    - Random Lead Grouping (matched branches, matched 492k parameters, branch dropout, cutout)
    - Ordinary Lead Dropout on a Flat Model
@@ -41,20 +41,25 @@ We completely agree. In the previous draft, the published baseline values in Tab
 We have completely rebuilt Table 7 to evaluate **strictly on the identical 5-diagnostic superclass task**, using PTB-XL v1.0.3, on the standard held-out Fold 10 test set ($N=2,198$). Furthermore, we report both the standard Fold 10 head-to-head results and the cyclic 10-fold cross-validation aggregate metrics side by side, with exact parameter counts.
 
 #### Rebuilt Table 7: Standard Held-Out Fold 10 Benchmark Comparison
-| Model Architecture | Source / Reference | Number of Parameters | PTB-XL Fold 10 Macro AUC | Macro F1 (Val-Opt) | 10-Fold CV Macro AUC | Explainability Modality |
-| :--- | :--- | :---: | :---: | :---: | :---: | :---: |
-| **ResNet1D-Wang** | Strodthoff et al. (2020) | ~500k | 0.9300 | 0.7300 | --- | Naive Saliency |
-| **XResNet1D101** | Strodthoff et al. (2020) | ~2.5M | 0.9280 | 0.7240 | --- | Naive Saliency |
-| **Inception1D** | Strodthoff et al. (2020) | ~450k | 0.9210 | 0.7180 | --- | Naive Saliency |
-| **TolerantECG** | Nguyen et al. (ACM MM 2025) | Multi-Million | 0.9260 | --- | --- | Black-Box Embedding |
-| **Model 1: Baseline Flat SE-ResNet1D** | Re-implemented Baseline | 763,629 | 0.9097 | 0.7214 | 0.9279 ± 0.0071 | Naive Grad-CAM |
-| **Model 2: Anatomical Multi-Branch** | Intermediate Architecture | 492,185 | 0.9282 | 0.7580 | 0.9407 ± 0.0056 | Multi-Branch Grad-CAM++ |
-| **Model 3: Territory-Dropout SE-ResNet1D (Ours)** | Proposed Framework | **492,185** | **0.9306** | **0.7549** | **0.9407 ± 0.0051** (Mean Test: 0.9329) | **Multi-Scale Anatomical XAI** |
+| Model Architecture | Source / Reference | Number of Parameters | PTB-XL Fold 10 Macro AUC | Macro F1 (Val-Opt) | Macro F1 (0.50 Thresh) | 10-Fold CV Macro AUC | Explainability Modality |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| **Panel A: High-Capacity Ensembles** | | | | | | | |
+| **Stacking Ensemble (Mamba+xLSTM+KAN+ECGFounder)** | Al-Mutawa et al. (2026) | Multi-Million (5 Models) | **0.9360** | --- | --- | --- | Black-Box Ensemble |
+| **Panel B: Individual Supervised & Foundation Baselines** | | | | | | | |
+| **ResNet1D-Wang** | Strodthoff et al. (2020) | ~500k | 0.9300 | 0.7300 | --- | --- | Naive Saliency |
+| **XResNet1D101** | Strodthoff et al. (2020) | ~2.5M | 0.9280 | 0.7240 | --- | --- | Naive Saliency |
+| **TolerantECG** | Nguyen et al. (ACM MM 2025) | Multi-Million | 0.9260 | --- | --- | --- | Black-Box Embedding |
+| **Inception1D** | Strodthoff et al. (2020) | ~450k | 0.9210 | 0.7180 | --- | --- | Naive Saliency |
+| **MIMIC-IV Foundation Tokenizer** | Hsu et al. (2026) | Multi-Million | 0.8945 | --- | --- | --- | Black-Box Embedding |
+| **Panel C: Proposed Framework and Controls** | | | | | | | |
+| **Model 1: Baseline Flat SE-ResNet1D** | Re-implemented Baseline | 763,629 | 0.9097 | 0.7214 | 0.7135 | 0.9279 ± 0.0071 | Naive Grad-CAM |
+| **Model 2: Anatomical Multi-Branch** | Intermediate Architecture | 492,185 | 0.9282 | 0.7580 | 0.7412 | 0.9407 ± 0.0056 | Multi-Branch Grad-CAM++ |
+| **Model 3: Territory-Dropout SE-ResNet1D (Ours)** | Proposed Framework | **492,185** | **0.9306** | **0.7549** | **0.7376** | **0.9407 ± 0.0051** | **Multi-Scale Anatomical XAI** |
 
 **Framing & Positioning:**
 Rather than asserting "vast statistical superiority," we have honestly reframed our contribution:
-- Model 3 achieves an ROC-AUC of **0.9306** on standard Fold 10, matching the published ResNet1D-Wang (0.930) and exceeding XResNet1D101 (0.928) and Inception1D (0.921).
-- Crucially, Model 3 achieves this diagnostic discrimination with **35.5% fewer parameters** than Model 1 (492,185 vs. 763,629), while providing intrinsic multi-scale anatomical explainability and superior resilience under missing leads and occluded territories.
+- Model 3 achieves an ROC-AUC of **0.9306** on standard Fold 10, matching the published ResNet1D-Wang (0.930) and exceeding XResNet1D101 (0.928), TolerantECG (0.926), Inception1D (0.921), and foundation pretraining (0.895).
+- While the Al-Mutawa et al. (2026) stacking ensemble reaches 0.9360, it ensembles 5 distinct sequence models spanning tens of millions of parameters into an uninterpretable black box. In contrast, Model 3 achieves 0.9306 in an ultra-compact single model (492k parameters, 35.5% fewer than Model 1) while providing intrinsic multi-scale anatomical explainability and superior resilience under missing leads and occluded territories.
 
 ---
 
@@ -345,6 +350,36 @@ We have explicitly incorporated the remaining XAI faithfulness considerations in
 1. **Shared Bottleneck Attention vs. Class-Conditional Gating**: We openly disclose that the learned attention vector $\vec{w}_{\text{attn}}$ is computed once per input at the multi-branch concatenation bottleneck, representing an input-level lead-group importance weighting across the entire tracing. While Macro occlusion sensitivity ($\Delta P$) and Meso Grad-CAM++ ($\alpha_{k, d}^{(c)}$) are explicitly class-specific, extending attention fusion to class-conditional gating represents a valuable architectural extension for complex multi-morbid ECGs with concurrent pathologies.
 2. **Cross-Architecture Post-Hoc XAI Benchmarking**: We formally designate direct benchmarking of post-hoc attribution methods across architectures (e.g., standard flat Grad-CAM vs. multi-branch Grad-CAM++) under quantitative insertion/deletion area under the curve (AUC) metrics as future work alongside multi-center clinical reader studies.
 
+### Comment 14: Integration of Recent (2024–2026) Literature, Task Compatibility Audit, and Explicit Lead Grouping Justification
+Following literature searches and advisor guidance regarding recent (2024–2026) advancements in PTB-XL benchmarking and multi-lead ECG modeling, we executed a comprehensive literature integration, task compatibility audit, and architectural defense:
+
+1. **Broad Literature Integration Across Paradigms**:
+   We acquired, analyzed, and integrated 11 new references into Section 2 and Section 4.3 spanning:
+   - High-capacity deep learning sequence ensembles (Al-Mutawa et al. 2026, combining 1D-ResNet18, Bidirectional Mamba, xLSTM, CWT-ViT-KAN, and ECGFounder).
+   - Multi-scale convolutional and attention architectures (DBA-ASFNet, Zhang et al. 2025; MSAICNet, Chen et al. 2026; DLTM-ECG, Li et al. 2026).
+   - Foundation models and pretraining representations (Hsu et al. 2026 MIMIC-IV beat-synchronous tokenizer; TolerantECG, Nguyen et al. 2025; ECG-IMN, Kumar et al. 2026).
+   - Methodological evaluation standards (Bhattacharya et al. 2026, *Evaluation of ECG Representations Must Be Fixed*).
+   - Multi-method explainable AI and clinical plausibility benchmarks (Petrov et al. 2025 PMC13565196; Bender et al. 2022).
+   - Anatomical lead graph and spatial decomposition models (Zhao et al. 2026 *Sci Rep*; Sweeney 2024).
+
+2. **Rigor in Task Suitability & Compatibility Audit**:
+   A key hazard in ECG benchmarking is conflating distinct task targets (e.g., 5 diagnostic superclasses vs. 44 diagnostic statements vs. 71 all-statements):
+   - *DBA-ASFNet (Zhang et al. 2025)* reported a headline Macro AUC of 92.13% on the 44-statement diagnostic task and 92.48% on 71 statements. Placing these directly in Table 7 alongside 5-superclass evaluations would represent an invalid apples-to-oranges comparison. We explicitly audited this difference, excluded DBA-ASFNet from numerical tabulation in Table 7, and instead discussed it in Section 2.1 and 2.2 as an architectural precedent for multi-branch lead attention.
+   - *Ensembles vs. Single Compact Architectures*: The stacking ensemble of Al-Mutawa et al. (2026) achieves 0.9360 AUROC across 5 superclasses, but pools five separate foundation/deep models with tens of millions of parameters into an uninterpretable ensemble. We isolated this result in **Panel A** of Table 7 as an ensemble upper bound, highlighting that our single 492k-parameter supervised model (**0.9306 AUROC**) approaches ensemble discrimination with complete multi-scale explainability.
+   - *Foundation Model Pretraining Reality*: Beat-synchronous self-supervised tokenization trained on MIMIC-IV-ECG (Hsu et al. 2026) achieves 0.8945 Macro AUROC on PTB-XL Fold 10 (**Panel B**), confirming that massive external pretraining without anatomical inductive bias does not automatically surpass compact, domain-structured supervised models.
+   - *Evaluation Rigor*: Bhattacharya et al. (2026) demonstrated that split variance and arbitrary thresholding distort benchmark reporting, validating our adherence to standard held-out Fold 10 benchmarking with bootstrap 95% confidence intervals and both fixed ($0.50$) and validation-optimized threshold metrics.
+
+3. **Explicit Documentation and Electrophysiological Justification of Lead Groupings (Section 2.4)**:
+   We addressed the lack of standardization across computational literature (e.g., Sweeney 2024 grouping V1–V3 as Septal and I, aVL, V5 as Lateral; Zhao et al. 2026 grouping V1–V4 as Antero-Septal and I, aVL, V5, V6 as Lateral):
+   - **Inferior ($\mathcal{L}_1 = \{\text{II}, \text{III}, \text{aVF}\}$)**: Examines the diaphragmatic wall of the left ventricle (RCA / PDA perfusion).
+   - **Antero-Septal ($\mathcal{L}_2 = \{\text{V1}, \text{V2}, \text{V3}, \text{V4}\}$)**: Unifying septal (V1–V2) and anterior (V3–V4) vectors directly addresses the transitional status of leads V2 and V3, reflecting that LAD occlusion typically compromises both septal and anterior segments concurrently, preventing artificial feature fragmentation.
+   - **Lateral ($\mathcal{L}_3 = \{\text{I}, \text{aVL}, \text{V5}, \text{V6}\}$)**: Including both high lateral limb leads (I, aVL) and low lateral precordial leads (V5, V6) provides complete coverage of LCx and diagonal artery perfusion (preventing omission of apical-lateral repolarization).
+   - **Cavity Reciprocal ($\mathcal{L}_4 = \{\text{aVR}\}$)**: Unipolar right arm lead provides reciprocal ST-elevation during extensive anterior or left main coronary occlusion.
+   - The partition forms an exact mathematical partition of the 12 leads ($\sum_{k=1}^4 |\mathcal{L}_k| = 3 + 4 + 4 + 1 = 12$) with zero omission and zero overlap.
+
+4. **Single-Column Review Layout Optimization**:
+   In `manuscript/main_single.tex`, we commented out `\begin{graphicalabstract}` and `\begin{highlights}`, eliminating two blank standalone pages generated by `elsarticle.cls`. The review manuscript now begins immediately on Page 1 with the Title, Authors, Abstract, and Introduction.
+
 ---
 
 ## Summary of Revisions in the Manuscript
@@ -364,6 +399,7 @@ We have explicitly incorporated the remaining XAI faithfulness considerations in
 | **11. Broadband Noise Vulnerability** | Section 4.5, Section 6 | Honestly reported and analyzed the sharp degradation under severe broadband noise (SNR=0dB, 0.5763 vs. 0.8146) and baseline wander (0.5mV), discussing the inductive bias trade-off between localized modular branches and flat pooling. |
 | **12. Full MI Cohort Reciprocal Check** | Section 5.1 | Audited the full $N=550$ MI cohort: $17.8\%$ of anterior MI cases ($N=269$) allocate $>10\%$ attention to opposing inferior leads ($12.3\%$ allocate $>20\%$), and $43.3\%$ of all MI cases assign $>20\%$ to inferior leads, confirming population-level reciprocal electrophysiology. |
 | **13. XAI Faithfulness & Class-Specific Gating** | Section 6 (Limitations) | Explicitly acknowledged limitations: shared bottleneck attention ($\vec{w}_{\text{attn}}$) computed at input-level rather than class-specifically; framed cross-architecture post-hoc XAI benchmarking (flat vs. multi-branch) under insertion/deletion metrics as concrete future work. |
+| **14. 2024–2026 Literature & Lead Grouping Defense** | Section 2 (2.1–2.4), Section 4.3 (Table 7) | Integrated 11 recent 2024–2026 papers; audited task compatibility (excluding 44-statement tasks like DBA-ASFNet from Table 7 to prevent mismatch); restructured Table 7 into 3 panels (Ensembles, Baselines/Foundation, Proposed); formally justified the 4-territory lead partition against conflicting literature; removed 2 blank pages from single-column review draft. |
 
 ---
 

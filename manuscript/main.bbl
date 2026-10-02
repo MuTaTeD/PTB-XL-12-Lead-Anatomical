@@ -102,30 +102,52 @@ F.~Liu, C.~Liu, L.~Zhao, X.~Zhang, X.~Wu, X.~Xu, Y.~Ding, S.~Yin, Z.~Chen,
 \newblock \href {https://doi.org/10.1166/jmihi.2018.2442}
   {\path{doi:10.1166/jmihi.2018.2442}}.
 
-\bibitem{mehari2022self}
-T.~Mehari, N.~Strodthoff, Self-supervised representation learning from 12-lead
-  ecg data, Computers in Biology and Medicine 141 (2022) 105114.
-\newblock \href {https://doi.org/10.1016/j.compbiomed.2021.105114}
-  {\path{doi:10.1016/j.compbiomed.2021.105114}}.
+\bibitem{al2026stacking}
+K.~Al-Mutawa, et~al., Deep stacking ensemble of mamba, xlstm, and vision-kan
+  for multi-label 12-lead electrocardiogram superclass diagnosis, arXiv
+  preprint arXiv:2609.12803 (2026).
 
-\bibitem{smigiel2021ecg}
-S.~Smigiel, K.~Pa{\l}ka, et~al., Ecg signal classification using deep learning
-  techniques based on the ptb-xl dataset, Entropy 23~(9) (2021) 1121.
-\newblock \href {https://doi.org/10.3390/e23091121}
-  {\path{doi:10.3390/e23091121}}.
+\bibitem{dba_asfnet2024}
+Y.~Zhang, L.~Wang, H.~Chen, {DBA-ASFNet}: Dual-branch attention and adaptive
+  squeeze-and-fusion network for multi-label {ECG} classification, Mathematics
+  13~(23) (2025) 3882.
+\newblock \href {https://doi.org/10.3390/math13233882}
+  {\path{doi:10.3390/math13233882}}.
 
-\bibitem{che2021constrained}
-C.~Che, P.~Zhang, M.~Zhu, Y.~Qu, B.~Jin, Constrained transformer network for
-  ecg signal processing and arrhythmia classification, BMC Medical Informatics
-  and Decision Making 21~(1) (2021) 1--15.
-\newblock \href {https://doi.org/10.1186/s12911-021-01546-2}
-  {\path{doi:10.1186/s12911-021-01546-2}}.
+\bibitem{mimic_ptbxl2026}
+C.-H. Hsu, et~al., Beat-synchronous tokenization and pretraining for
+  electrocardiograms, arXiv preprint arXiv:2608.30367 (2026).
+
+\bibitem{goldberger2026ecgfix}
+S.~Bhattacharya, et~al., Evaluation of {ECG} representations must be fixed: On
+  task definitions, split robustness, and confidence bounds, arXiv preprint
+  arXiv:2602.17531 (2026).
 
 \bibitem{zhou2024leadwise}
 F.~Zhou, L.~Chen, Leadwise clustering multi-branch network for multi-label
   {ECG} classification, Medical Engineering \& Physics 130 (2024) 104196.
 \newblock \href {https://doi.org/10.1016/j.medengphy.2024.104196}
   {\path{doi:10.1016/j.medengphy.2024.104196}}.
+
+\bibitem{sweeney2024lead}
+L.~S. Sweeney, Lead-reduction ablation for {PTB-XL} {ECG} classification,
+  GitHub Repository: Lead-Reduction-Ablation-for-PTB-XL-ECG-Classification
+  (2024).
+
+\bibitem{anat_graph2026}
+Z.~Zhao, M.~Sun, K.~Liu, Anatomy-aware graph neural network with regional
+  cardiac adjacency matrices for 12-lead {ECG} analysis, Scientific Reports 16
+  (2026) 54206.
+\newblock \href {https://doi.org/10.1038/s41598-026-54206-8}
+  {\path{doi:10.1038/s41598-026-54206-8}}.
+
+\bibitem{dltm_ecg2026}
+M.~Li, et~al., {DLTM-ECG}: Lead-separated dual transformer with orthogonal
+  cross-lead attention, arXiv preprint arXiv:2603.17248 (2026).
+
+\bibitem{msaicnet2026}
+B.~Chen, et~al., {MSAIC-Net}: Multi-scale anatomical importance and attribution
+  for myocardial infarction detection, arXiv preprint arXiv:2606.06718 (2026).
 
 \bibitem{nguyen2025tolerantecg}
 D.-T. Nguyen, T.~Pham, T.~Le, V.~Nguyen, {TolerantECG}: A foundation model for
@@ -143,6 +165,25 @@ W.~Liu, Z.~Wu, Z.~Yuan, {ACL-ECG}: Anatomy-aware contrastive learning for
 \bibitem{li2025ecgfounder}
 J.~Li, X.~Zhou, et~al., {ECGFounder}: A foundational {AI} model for
   electrocardiogram analysis, arXiv preprint arXiv:2507.09887 (2025).
+
+\bibitem{stacked_xai2025}
+A.~Petrov, et~al., Multi-scale explainability and lead-specific occlusion in
+  deep cardiac ensembles, Journal of Medical Systems / PMC 49~(1) (2025)
+  13565196.
+
+\bibitem{ecg_imn2026}
+R.~Kumar, et~al., {ECG-IMN}: Intrinsically interpretable multi-scale neural
+  networks for lead-wise and temporal attribution, arXiv preprint
+  arXiv:2602.09566 (2026).
+
+\bibitem{bender2022relevance}
+T.~Bender, et~al., Evaluating relevance attribution against clinical criteria
+  in 12-lead electrocardiograms, arXiv preprint arXiv:2211.01738 (2022).
+
+\bibitem{adebayo2018sanity}
+J.~Adebayo, J.~Gilmer, M.~Muelly, I.~Goodfellow, M.~Hardt, B.~Kim, Sanity
+  checks for saliency maps, in: Advances in Neural Information Processing
+  Systems (NeurIPS), Vol.~31, 2018, pp. 9505--9515.
 
 \bibitem{wagner2009aha}
 G.~S. Wagner, P.~Macfarlane, H.~Wellens, M.~Josephson, A.~Gorgels, D.~M.

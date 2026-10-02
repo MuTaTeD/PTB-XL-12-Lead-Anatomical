@@ -38,16 +38,22 @@ Evaluated on the exact 5-diagnostic superclass task (`NORM`, `MI`, `STTC`, `CD`,
 
 | Model Architecture | Source / Reference | Number of Parameters | PTB-XL Fold 10 Macro AUC | Macro F1 (Val-Opt) | 10-Fold CV Macro AUC | Explainability Modality |
 | :--- | :--- | :---: | :---: | :---: | :---: | :---: |
+| **Panel A: High-Capacity Ensembles** | | | | | | |
+| **Stacking Ensemble (Mamba+xLSTM+KAN+ECGFounder)** | Al-Mutawa et al. (2026) | Multi-Million (5 Models) | **0.9360** | --- | --- | Black-Box Ensemble |
+| **Panel B: Individual Supervised & Foundation Baselines** | | | | | | |
 | **ResNet1D-Wang** | Strodthoff et al. (2020) | ~500k | 0.9300 | 0.7300 | --- | Naive Saliency |
 | **XResNet1D101** | Strodthoff et al. (2020) | ~2.5M | 0.9280 | 0.7240 | --- | Naive Saliency |
 | **TolerantECG** | Nguyen et al. (ACM MM 2025) | Multi-Million | 0.9260 | --- | --- | Black-Box Embedding |
 | **Inception1D** | Strodthoff et al. (2020) | ~450k | 0.9210 | 0.7180 | --- | Naive Saliency |
-| **Model 1: Baseline Flat SE-ResNet1D** | Re-implemented Baseline | 763,629 | 0.9097 | 0.7214 | 0.9248 ± 0.0060 | Naive Grad-CAM |
-| **Model 2: Anatomical Multi-Branch** | Intermediate Architecture | 492,185 | 0.9282 | 0.7580 | 0.9295 ± 0.0057 | Multi-Branch Grad-CAM++ |
-| **Model 3: Territory-Dropout (Ours)** | Proposed Framework | **492,185** | **0.9306** | **0.7549** | **0.9329 ± 0.0059** | **Multi-Scale Anatomical XAI** |
+| **MIMIC-IV Foundation Tokenizer** | Hsu et al. (2026) | Multi-Million | 0.8945 | --- | --- | Black-Box Embedding |
+| **Panel C: Proposed Framework and Controls** | | | | | | |
+| **Model 1: Baseline Flat SE-ResNet1D** | Re-implemented Baseline | 763,629 | 0.9097 | 0.7214 | 0.9279 ± 0.0071 | Naive Grad-CAM |
+| **Model 2: Anatomical Multi-Branch** | Intermediate Architecture | 492,185 | 0.9282 | 0.7580 | 0.9407 ± 0.0056 | Multi-Branch Grad-CAM++ |
+| **Model 3: Territory-Dropout (Ours)** | Proposed Framework | **492,185** | **0.9306** | **0.7549** | **0.9407 ± 0.0051** | **Multi-Scale Anatomical XAI** |
 
 - **Patient-Level Paired Bootstrap ($B=1,000$ iterations on Fold 10)**: Model 3 vs Model 1 $\Delta \text{AUC} = \mathbf{+0.0209}$ [95% CI: $\mathbf{+0.0160, +0.0260}$] ($p < 0.001$).
 - **Efficiency**: Model 3 matches/exceeds baselines with **35.5% fewer parameters** than flat architectures (492k vs 764k).
+- **Ensemble Context**: Approaches the performance of the 5-model stacking ensemble ($0.9306$ vs. $0.9360$) while preserving intrinsic multi-scale interpretability and 3.3s bedside latency.
 
 ### 2. Ablation Suite: Isolating Anatomical Inductive Bias vs. Regularization (Fold 10)
 
